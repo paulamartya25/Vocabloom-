@@ -1,4 +1,4 @@
-"""
+﻿"""
 Generates a fully self-contained phase1_notebook.ipynb for Kaggle.
 Run this script LOCALLY to regenerate the notebook whenever the .py files change.
 """
@@ -202,12 +202,13 @@ if stats_path.exists():
     with open(stats_path) as f:
         stats = json.load(f)
 
-    print("📊 Dataset Statistics")
-    print(f"  Total examples : {stats.get(\'total_examples\', \'N/A\'):,}")
-    print(f"  Train split    : {stats.get(\'train_examples\', \'N/A\'):,}")
-    print(f"  Val split      : {stats.get(\'val_examples\', \'N/A\'):,}")
-    print(f"  Test split     : {stats.get(\'test_examples\', \'N/A\'):,}")
-    print(f"  Language pairs : {stats.get(\'language_pairs\', \'N/A\')}")
+    print("Dataset Statistics")
+    def _n(v): return f"{v:,}" if isinstance(v, int) else str(v)
+    print(f"  Total examples : {_n(stats.get('total_examples', 'N/A'))}")
+    print(f"  Train split    : {_n(stats.get('train_examples', 'N/A'))}")
+    print(f"  Val split      : {_n(stats.get('val_examples',   'N/A'))}")
+    print(f"  Test split     : {_n(stats.get('test_examples',  'N/A'))}")
+    print(f"  Language pairs : {stats.get('language_pairs', 'N/A')}")
 
     pairs = stats.get("pair_counts", {})
     if pairs:
@@ -378,3 +379,4 @@ OUT_PATH.write_text(json.dumps(notebook, indent=1, ensure_ascii=False), encoding
 print(f"[OK] Written: {OUT_PATH}")
 print(f"     Cells : {len(cells)}")
 print(f"     Size  : {OUT_PATH.stat().st_size/1024:.1f} KB")
+
