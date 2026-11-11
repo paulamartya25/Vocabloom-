@@ -1,43 +1,48 @@
 # Phase 1 - Multilingual Translator Requirements
 # Tested on Kaggle with 2x T4 GPUs (Python 3.10+)
+# Updated for latest PyPI versions (Nov 2026)
+#
+# NOTE: On Kaggle, PyTorch is pre-installed — the pip install below
+# will upgrade/match automatically. The >=2.5 constraint lets pip pick
+# the highest available wheel for your CUDA version.
 
 # Core ML / Deep Learning
-torch==2.1.2
-torchvision==0.16.2
-torchaudio==2.1.2
+torch>=2.5.0
+torchvision>=0.20.0
+torchaudio>=2.5.0
 
 # HuggingFace ecosystem
-transformers==4.38.2
-datasets==2.18.0
-tokenizers==0.15.2
-huggingface-hub==0.21.4
-accelerate==0.27.2
-evaluate==0.4.1
+transformers>=4.45.0
+datasets>=3.0.0
+tokenizers>=0.20.0
+huggingface-hub>=0.25.0
+accelerate>=1.0.0
+evaluate>=0.4.3
 
 # Data processing
-pandas==2.2.1
-numpy==1.26.4
-pyarrow==15.0.2
-fastparquet==2024.2.0
+pandas>=2.2.1
+numpy>=1.26.4,<2.0.0
+pyarrow>=15.0.2
+fastparquet>=2024.2.0
 
 # Language detection
 langdetect==1.0.9
-lingua-language-detector==2.0.2
+lingua-language-detector>=2.0.2
 
 # Evaluation metrics
-sacrebleu==2.4.0
-rouge-score==0.1.2
-nltk==3.8.1
+sacrebleu>=2.4.0
+rouge-score>=0.1.2
+nltk>=3.8.1
 
 # Utilities
-tqdm==4.66.2
-scikit-learn==1.4.1.post1
-scipy==1.12.0
-matplotlib==3.8.3
-seaborn==3.8.3
-psutil==5.9.8
-pynvml==11.5.0
+tqdm>=4.66.2
+scikit-learn>=1.4.0
+scipy>=1.12.0
+matplotlib>=3.8.3
+seaborn>=0.13.2
+psutil>=5.9.8
+pynvml>=11.5.0
 
 # Notebook / Kaggle
-ipywidgets==8.1.2
-ipykernel==6.29.3
+ipywidgets>=8.1.2
+ipykernel>=6.29.3

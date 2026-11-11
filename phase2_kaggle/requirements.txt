@@ -1,60 +1,60 @@
 # Phase 2 — Kaggle Dependencies
 # ==============================
 # Install with:  pip install -r requirements.txt
-# Tested on Kaggle with Python 3.10, CUDA 11.8, 2× NVIDIA T4 (16 GB each)
+# Tested on Kaggle with Python 3.10, CUDA 12.x, 2× NVIDIA T4 (16 GB each)
+# Updated for latest PyPI versions (Nov 2026)
 #
-# Note: bitsandbytes requires CUDA; on CPU-only machines use CPU-only build.
+# NOTE: On Kaggle, PyTorch is pre-installed. Use >= constraints so pip
+# picks the correct CUDA-matched wheel automatically.
 
 # ── Core ML / training ───────────────────────────────────────────────────────
-torch==2.1.2
-torchvision==0.16.2
-torchaudio==2.1.2
+torch>=2.5.0
+torchvision>=0.20.0
+torchaudio>=2.5.0
 
 # ── Hugging Face ecosystem ────────────────────────────────────────────────────
-transformers==4.38.2
-tokenizers==0.15.2
-datasets==2.18.0
-evaluate==0.4.1
-huggingface_hub==0.21.4
-accelerate==0.27.2
-safetensors==0.4.2
+transformers>=4.45.0
+tokenizers>=0.20.0
+datasets>=3.0.0
+evaluate>=0.4.3
+huggingface_hub>=0.25.0
+accelerate>=1.0.0
+safetensors>=0.4.5
 
 # ── Parameter-Efficient Fine-Tuning ──────────────────────────────────────────
-peft==0.9.0
+peft>=0.13.0
 
 # ── Quantization ─────────────────────────────────────────────────────────────
-bitsandbytes==0.43.0
+bitsandbytes>=0.44.0
 
 # ── ONNX export & inference ───────────────────────────────────────────────────
-optimum==1.17.1
-onnx==1.16.0
-onnxruntime==1.17.3
-# GPU runtime (optional — Kaggle has CUDA):
-# onnxruntime-gpu==1.17.3
+optimum>=1.23.0
+onnx>=1.17.0
+onnxruntime-gpu>=1.19.0   # GPU-enabled; falls back to CPU if no CUDA
 
 # ── CTranslate2 ───────────────────────────────────────────────────────────────
-ctranslate2==4.1.0
+ctranslate2>=4.4.0
 
 # ── Metrics ───────────────────────────────────────────────────────────────────
-sacrebleu==2.4.0
-jiwer==3.0.3           # required by evaluate WER
-rouge_score==0.1.2
+sacrebleu>=2.4.0
+jiwer>=3.0.4
+rouge_score>=0.1.2
 
 # ── Audio processing ─────────────────────────────────────────────────────────
-librosa==0.10.1
-soundfile==0.12.1
+librosa>=0.10.2
+soundfile>=0.12.1
 
 # ── Scientific computing ─────────────────────────────────────────────────────
-numpy==1.26.4
-scipy==1.12.0
+numpy>=1.26.4,<2.0.0
+scipy>=1.12.0
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
-tqdm==4.66.2
-sentencepiece==0.2.0
-protobuf==3.20.3
-pandas==2.2.1
-matplotlib==3.8.3
-seaborn==0.13.2
-psutil==5.9.8
-packaging==24.0
-requests==2.31.0
+tqdm>=4.66.2
+sentencepiece>=0.2.0
+protobuf>=4.25.0
+pandas>=2.2.1
+matplotlib>=3.8.3
+seaborn>=0.13.2
+psutil>=5.9.8
+packaging>=24.0
+requests>=2.32.0
