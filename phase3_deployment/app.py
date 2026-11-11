@@ -324,6 +324,169 @@ async def languages():
     return {"languages": get_supported_languages()}
 
 
+# ---------------------------------------------------------------------------
+# Performance Metrics Endpoint
+# ---------------------------------------------------------------------------
+_METRICS_CACHE: Optional[Dict[str, Any]] = None
+_METRICS_LOADED_AT: float = 0.0
+_METRICS_TTL: float = 3600.0  # Cache metrics JSON for 1 hour
+
+
+@app.get("/metrics")
+async def get_metrics():
+    """
+    Return pre-computed performance metrics for all models.
+    Loads from metrics/all_metrics.json if available; otherwise returns
+    live runtime stats collected since startup.
+    """
+    global _METRICS_CACHE, _METRICS_LOADED_AT
+
+    now = time.time()
+    # Refresh cache if stale
+    if _METRICS_CACHE is None or (now - _METRICS_LOADED_AT) > _METRICS_TTL:
+        # Try to load pre-computed metrics file
+        metrics_paths = [
+            Path(__file__).parent.parent / "metrics" / "all_metrics.json",
+            Path("/app/metrics/all_metrics.json"),
+            Path("/kaggle/working/metrics/all_metrics.json"),
+        ]
+        for mp in metrics_paths:
+            if mp.exists():
+                try:
+                    with open(mp, encoding="utf-8") as f:
+                        _METRICS_CACHE = json.load(f)
+                    _METRICS_LOADED_AT = now
+                    logger.info(f"Loaded metrics from {mp}")
+                    break
+                except Exception as e:
+                    logger.warning(f"Could not load metrics from {mp}: {e}")
+
+    # Build live runtime stats from request log
+    live_stats = _build_live_stats()
+
+    return {
+        "source": "pre_computed" if _METRICS_CACHE else "live_only",
+        "pre_computed_metrics": _METRICS_CACHE,
+        "live_runtime_stats": live_stats,
+        "metric_definitions": {
+            "BLEU": "Bilingual Evaluation Understudy (0–100, ↑ better)",
+            "chrF": "Character F-score (0–100, ↑ better)",
+            "TER": "Translation Edit Rate (0–∞, ↓ better)",
+            "ROUGE_L": "Longest Common Subsequence F1 (0–1, ↑ better)",
+            "BERTScore_F1": "Semantic similarity via BERT (0–1, ↑ better)",
+            "WER": "Word Error Rate for ASR (0–1, ↓ better)",
+            "CER": "Character Error Rate for ASR (0–1, ↓ better)",
+            "RTF": "Real-Time Factor — ratio of proc_time to audio_duration (↓ better, <1 = real-time)",
+            "latency_ms": "Average per-request inference latency in milliseconds",
+            "throughput_tok_s": "Tokens translated per second",
+        },
+    }
+
+
+@app.get("/metrics/summary")
+async def get_metrics_summary():
+    """Return a concise per-model metrics summary table (great for dashboards)."""
+    full = await get_metrics()
+    pre = full.get("pre_computed_metrics") or []
+    live = full.get("live_runtime_stats", {})
+
+    summary = []
+    for model_data in pre:
+        name = model_data.get("model_name", "unknown")
+        trans_metrics = model_data.get("translation_metrics", [])
+        asr_metrics   = model_data.get("asr_metrics", [])
+
+        if trans_metrics:
+            bleus  = [m["bleu"]   for m in trans_metrics if m.get("bleu",  -1) >= 0]
+            chrfs  = [m["chrf"]   for m in trans_metrics if m.get("chrf",  -1) >= 0]
+            ters   = [m["ter"]    for m in trans_metrics if m.get("ter",   -1) >= 0]
+            lats   = [m["latency_ms"] for m in trans_metrics]
+            toks   = [m["throughput_tokens_per_sec"] for m in trans_metrics]
+            summary.append({
+                "model": name,
+                "type": "translation",
+                "backend": model_data.get("inference_backend", ""),
+                "quantization": model_data.get("quantization", ""),
+                "params_M": model_data.get("parameters_millions", 0),
+                "size_mb": model_data.get("model_size_mb", 0),
+                "avg_bleu": round(float(np.mean(bleus)), 2) if bleus else None,
+                "avg_chrf": round(float(np.mean(chrfs)), 2) if chrfs else None,
+                "avg_ter":  round(float(np.mean(ters)), 2)  if ters  else None,
+                "avg_latency_ms": round(float(np.mean(lats)), 1) if lats else None,
+                "avg_throughput_tok_s": round(float(np.mean(toks)), 1) if toks else None,
+                "num_lang_pairs": len(trans_metrics),
+            })
+
+        if asr_metrics:
+            wers = [m["wer"] for m in asr_metrics if m.get("wer", -1) >= 0]
+            cers = [m["cer"] for m in asr_metrics if m.get("cer", -1) >= 0]
+            rtfs = [m["rtf"] for m in asr_metrics]
+            lats = [m["latency_ms"] for m in asr_metrics]
+            summary.append({
+                "model": name,
+                "type": "asr",
+                "backend": model_data.get("inference_backend", ""),
+                "quantization": model_data.get("quantization", ""),
+                "avg_wer": round(float(np.mean(wers)), 4) if wers else None,
+                "avg_cer": round(float(np.mean(cers)), 4) if cers else None,
+                "avg_rtf": round(float(np.mean(rtfs)), 4) if rtfs else None,
+                "avg_latency_ms": round(float(np.mean(lats)), 1) if lats else None,
+                "num_languages": len(asr_metrics),
+            })
+
+    return {
+        "summary": summary,
+        "live_stats": live,
+        "total_models_evaluated": len(pre),
+    }
+
+
+# In-memory request log for live stats
+_REQUEST_LOG: list = []  # list of {"endpoint", "latency_ms", "ts", "model"}
+_MAX_LOG = 10_000
+
+
+def _log_request(endpoint: str, latency_ms: float, model: str = ""):
+    """Called from translate/transcribe endpoints to track live stats."""
+    _REQUEST_LOG.append({
+        "endpoint": endpoint,
+        "latency_ms": latency_ms,
+        "model": model,
+        "ts": time.time(),
+    })
+    if len(_REQUEST_LOG) > _MAX_LOG:
+        del _REQUEST_LOG[: _MAX_LOG // 2]
+
+
+def _build_live_stats() -> Dict[str, Any]:
+    """Aggregate live request log into per-model runtime stats."""
+    if not _REQUEST_LOG:
+        return {"message": "No requests logged yet", "total_requests": 0}
+
+    from collections import defaultdict
+    by_model: Dict[str, list] = defaultdict(list)
+    for entry in _REQUEST_LOG:
+        by_model[entry["model"]].append(entry["latency_ms"])
+
+    result: Dict[str, Any] = {
+        "total_requests": len(_REQUEST_LOG),
+        "window_seconds": time.time() - _REQUEST_LOG[0]["ts"],
+        "per_model": {},
+    }
+    for model, lats in by_model.items():
+        arr = np.array(lats)
+        result["per_model"][model] = {
+            "requests": len(lats),
+            "avg_latency_ms":    round(float(arr.mean()), 1),
+            "p50_latency_ms":    round(float(np.percentile(arr, 50)), 1),
+            "p95_latency_ms":    round(float(np.percentile(arr, 95)), 1),
+            "p99_latency_ms":    round(float(np.percentile(arr, 99)), 1),
+            "min_latency_ms":    round(float(arr.min()), 1),
+            "max_latency_ms":    round(float(arr.max()), 1),
+        }
+    return result
+
+
 @app.post("/translate", response_model=TranslateResponse)
 async def translate(req: TranslateRequest):
     """Translate text between supported languages."""
@@ -359,6 +522,7 @@ async def translate(req: TranslateRequest):
         logger.exception("Translation error")
         raise HTTPException(500, f"Internal translation error: {exc}")
 
+    _log_request("/translate", round(latency_ms, 2), model_used)
     return TranslateResponse(
         translated_text=translated,
         model_used=model_used,

@@ -30,3 +30,7 @@ aiofiles==23.2.1
 
 # Optional: torch (needed for Whisper generate fallback)
 # torch==2.3.1  # uncomment for GPU or Whisper decode
+
+# Metrics dashboard support
+jiwer>=3.0.4
+numpy>=1.26.4

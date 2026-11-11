@@ -58,3 +58,6 @@ seaborn>=0.13.2
 psutil>=5.9.8
 packaging>=24.0
 requests>=2.32.0
+
+# Extra evaluation metrics
+bert-score>=0.3.13

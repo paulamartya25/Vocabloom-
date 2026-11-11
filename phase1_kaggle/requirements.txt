@@ -46,3 +46,8 @@ pynvml>=11.5.0
 # Notebook / Kaggle
 ipywidgets>=8.1.2
 ipykernel>=6.29.3
+
+# Evaluation metrics (for metrics_evaluator.py)
+jiwer>=3.0.4
+bert-score>=0.3.13
+rouge-score>=0.1.2

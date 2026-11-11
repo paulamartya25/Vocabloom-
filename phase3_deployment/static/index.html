@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>🌐 Multilingual Translator</title>
+<title>ðŸŒ Multilingual Translator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -429,19 +429,20 @@ pre.code-block{
 <div class="container">
   <!-- HEADER -->
   <header>
-    <h1>🌐 Multilingual Translator</h1>
+    <h1>ðŸŒ Multilingual Translator</h1>
     <div class="header-badge">
       <div class="status-dot" id="globalStatus"></div>
-      <span id="globalStatusText">Checking models…</span>
+      <span id="globalStatusText">Checking modelsâ€¦</span>
     </div>
   </header>
 
   <!-- TABS -->
   <div class="tabs">
-    <button class="tab-btn active" data-tab="text">📝 Text</button>
-    <button class="tab-btn" data-tab="voice">🎙️ Voice</button>
-    <button class="tab-btn" data-tab="stream">⚡ Streaming</button>
-    <button class="tab-btn" data-tab="info">ℹ️ Info &amp; API</button>
+    <button class="tab-btn active" data-tab="text">ðŸ“ Text</button>
+    <button class="tab-btn" data-tab="voice">ðŸŽ™ï¸ Voice</button>
+    <button class="tab-btn" data-tab="stream">âš¡ Streaming</button>
+    <button class="tab-btn" data-tab="info">â„¹ï¸ Info &amp; API</button>
+    <button class="tab-btn" data-tab="metrics">ðŸ“Š Metrics</button>
   </div>
 
   <!-- ===================== TAB: TEXT ===================== -->
@@ -453,7 +454,7 @@ pre.code-block{
           <label for="srcLang">Source</label>
           <select id="srcLang"></select>
         </div>
-        <button class="swap-btn" id="swapBtn" title="Swap languages">⇄</button>
+        <button class="swap-btn" id="swapBtn" title="Swap languages">â‡„</button>
         <div>
           <label for="tgtLang">Target</label>
           <select id="tgtLang"></select>
@@ -471,8 +472,8 @@ pre.code-block{
       <div>
         <label>Model</label>
         <div class="model-row">
-          <button class="model-chip active" data-model="nllb">🚀 NLLB-200</button>
-          <button class="model-chip" data-model="hybrid">🧠 Custom Hybrid</button>
+          <button class="model-chip active" data-model="nllb">ðŸš€ NLLB-200</button>
+          <button class="model-chip" data-model="hybrid">ðŸ§  Custom Hybrid</button>
         </div>
       </div>
     </div>
@@ -482,7 +483,7 @@ pre.code-block{
       <div class="card">
         <label for="srcText">Input Text</label>
         <div class="textarea-wrapper">
-          <textarea id="srcText" placeholder="Enter text to translate…" maxlength="2000" rows="7"></textarea>
+          <textarea id="srcText" placeholder="Enter text to translateâ€¦" maxlength="2000" rows="7"></textarea>
           <span class="char-count" id="charCount">0 / 2000</span>
         </div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap">
@@ -490,18 +491,18 @@ pre.code-block{
             <span id="translateBtnLabel">Translate</span>
           </button>
           <button class="btn btn-secondary btn-sm" id="clearBtn">Clear</button>
-          <button class="btn btn-secondary btn-sm" id="detectBtn">🔍 Detect Lang</button>
+          <button class="btn btn-secondary btn-sm" id="detectBtn">ðŸ” Detect Lang</button>
         </div>
       </div>
 
       <div class="card">
         <label>Translation</label>
         <div class="output-box" id="outputBox">
-          <span class="placeholder">Translation will appear here…</span>
+          <span class="placeholder">Translation will appear hereâ€¦</span>
         </div>
         <div class="output-actions">
           <span class="latency-badge" id="latencyBadge"></span>
-          <button class="btn btn-secondary btn-sm" id="copyBtn">📋 Copy</button>
+          <button class="btn btn-secondary btn-sm" id="copyBtn">ðŸ“‹ Copy</button>
         </div>
       </div>
     </div>
@@ -509,7 +510,7 @@ pre.code-block{
     <!-- Translation History -->
     <div class="card" style="margin-top:1rem">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
-        <span class="section-title">📜 Translation History</span>
+        <span class="section-title">ðŸ“œ Translation History</span>
         <button class="btn btn-danger btn-sm" id="clearHistoryBtn">Clear</button>
       </div>
       <ul class="history-list" id="historyList">
@@ -532,13 +533,13 @@ pre.code-block{
           <div class="bar"></div><div class="bar"></div><div class="bar"></div>
           <div class="bar"></div><div class="bar"></div>
         </div>
-        <button class="record-btn" id="recordBtn" title="Hold to record">🎤</button>
+        <button class="record-btn" id="recordBtn" title="Hold to record">ðŸŽ¤</button>
         <span class="record-label" id="recordLabel">Tap to record</span>
       </div>
 
       <div style="text-align:center;margin-bottom:1.5rem">
         <label for="audioUpload" class="btn btn-secondary" style="cursor:pointer;display:inline-flex">
-          📂 Upload Audio File
+          ðŸ“‚ Upload Audio File
         </label>
         <input type="file" id="audioUpload" accept="audio/*" style="display:none"/>
       </div>
@@ -546,17 +547,17 @@ pre.code-block{
       <div class="section-sep"></div>
 
       <label>Transcript</label>
-      <div class="transcript-box" id="transcriptBox">Recording will appear here…</div>
+      <div class="transcript-box" id="transcriptBox">Recording will appear hereâ€¦</div>
 
       <div class="section-sep"></div>
 
       <label>Translation</label>
       <div class="output-box" id="voiceOutputBox">
-        <span class="placeholder">Translation will appear here…</span>
+        <span class="placeholder">Translation will appear hereâ€¦</span>
       </div>
       <div class="output-actions" style="margin-top:.5rem">
         <span class="latency-badge" id="voiceLatencyBadge"></span>
-        <button class="btn btn-secondary btn-sm" id="copyVoiceBtn">📋 Copy</button>
+        <button class="btn btn-secondary btn-sm" id="copyVoiceBtn">ðŸ“‹ Copy</button>
       </div>
     </div>
   </div>
@@ -566,7 +567,7 @@ pre.code-block{
     <div class="card" style="margin-bottom:1rem">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem">
         <span class="section-title" style="margin-bottom:0">Real-time Streaming Translation</span>
-        <span class="ws-status disconnected" id="wsStatus">⬤ Disconnected</span>
+        <span class="ws-status disconnected" id="wsStatus">â¬¤ Disconnected</span>
       </div>
 
       <div class="lang-row">
@@ -574,7 +575,7 @@ pre.code-block{
           <label for="streamSrcLang">Source</label>
           <select id="streamSrcLang"></select>
         </div>
-        <div class="swap-btn" id="streamSwapBtn" title="Swap">⇄</div>
+        <div class="swap-btn" id="streamSwapBtn" title="Swap">â‡„</div>
         <div>
           <label for="streamTgtLang">Target</label>
           <select id="streamTgtLang"></select>
@@ -586,15 +587,15 @@ pre.code-block{
       <div class="card">
         <label for="streamInput">Type to translate (auto-streams)</label>
         <div class="textarea-wrapper">
-          <textarea id="streamInput" placeholder="Start typing…" rows="8"></textarea>
+          <textarea id="streamInput" placeholder="Start typingâ€¦" rows="8"></textarea>
         </div>
-        <button class="btn btn-secondary btn-sm" id="wsConnectBtn">🔌 Connect WebSocket</button>
+        <button class="btn btn-secondary btn-sm" id="wsConnectBtn">ðŸ”Œ Connect WebSocket</button>
       </div>
 
       <div class="card">
         <label>Live Translation</label>
         <div class="stream-output" id="streamOutput">
-          <span style="color:var(--text-secondary);font-style:italic">Connect WebSocket and start typing…</span>
+          <span style="color:var(--text-secondary);font-style:italic">Connect WebSocket and start typingâ€¦</span>
           <span class="stream-cursor" style="display:none" id="streamCursor"></span>
         </div>
       </div>
@@ -604,12 +605,12 @@ pre.code-block{
   <!-- ===================== TAB: INFO ===================== -->
   <div class="tab-panel" id="tab-info">
     <div class="card" style="margin-bottom:1rem">
-      <p class="section-title">🌍 Supported Languages (24)</p>
+      <p class="section-title">ðŸŒ Supported Languages (24)</p>
       <div class="lang-grid" id="langGrid"></div>
     </div>
 
     <div class="card" style="margin-bottom:1rem">
-      <p class="section-title">📡 API Reference</p>
+      <p class="section-title">ðŸ“¡ API Reference</p>
 
       <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:.75rem">Base URL: <code style="color:var(--accent-3)">http://localhost:7860</code></p>
 
@@ -627,7 +628,7 @@ pre.code-block{
       <pre class="code-block">curl -X POST http://localhost:7860/transcribe \
   -F "file=@audio.wav"</pre>
 
-      <p style="font-weight:600;margin:.85rem 0 .35rem;font-size:.9rem">Audio → translate pipeline</p>
+      <p style="font-weight:600;margin:.85rem 0 .35rem;font-size:.9rem">Audio â†’ translate pipeline</p>
       <pre class="code-block">curl -X POST http://localhost:7860/translate_audio \
   -F "file=@audio.wav" \
   -F "target_lang=hi" \
@@ -642,27 +643,78 @@ ws.onmessage = e => console.log(JSON.parse(e.data));</pre>
     </div>
 
     <div class="card">
-      <p class="section-title">📊 Model Performance</p>
+      <p class="section-title">ðŸ“Š Model Performance</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem">
         <div class="lang-card" style="flex-direction:column;align-items:flex-start;gap:.25rem">
           <span style="font-weight:600;color:var(--accent-1)">NLLB-200 (CT2)</span>
-          <span style="color:var(--text-secondary)">~120ms · int8 quantized</span>
+          <span style="color:var(--text-secondary)">~120ms Â· int8 quantized</span>
           <span style="color:var(--text-secondary)">24 languages</span>
         </div>
         <div class="lang-card" style="flex-direction:column;align-items:flex-start;gap:.25rem">
           <span style="font-weight:600;color:var(--accent-2)">Custom Hybrid</span>
-          <span style="color:var(--text-secondary)">~200ms · fine-tuned</span>
+          <span style="color:var(--text-secondary)">~200ms Â· fine-tuned</span>
           <span style="color:var(--text-secondary)">Indian languages optimized</span>
         </div>
         <div class="lang-card" style="flex-direction:column;align-items:flex-start;gap:.25rem">
           <span style="font-weight:600;color:var(--accent-3)">Whisper ONNX</span>
-          <span style="color:var(--text-secondary)">~300ms · small model</span>
+          <span style="color:var(--text-secondary)">~300ms Â· small model</span>
           <span style="color:var(--text-secondary)">Indian accent tuned</span>
         </div>
       </div>
     </div>
   </div>
 
+
+  <!-- ===================== TAB: METRICS ===================== -->
+  <div class="tab-panel" id="tab-metrics">
+    <div class="card" style="margin-bottom:1rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <p class="section-title" style="margin:0">Model Performance Metrics</p>
+        <button class="btn" id="refreshMetricsBtn" onclick="loadMetrics()" style="padding:.35rem .9rem;font-size:.82rem">Refresh</button>
+      </div>
+      <div id="metricsStatus" style="font-size:.82rem;color:var(--text-secondary);margin-bottom:.75rem">Loading metrics...</div>
+      <div id="modelSummaryCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.75rem;margin-bottom:1.25rem"></div>
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <p class="section-title">Translation Metrics per Language Pair</p>
+      <div style="overflow-x:auto">
+        <table id="translationMetricsTable" style="width:100%;border-collapse:collapse;font-size:.82rem">
+          <thead><tr id="transHead" style="color:var(--text-secondary);border-bottom:1px solid var(--border)"></tr></thead>
+          <tbody id="transBody"></tbody>
+        </table>
+      </div>
+      <p id="transEmpty" style="color:var(--text-secondary);font-size:.85rem;text-align:center;padding:1.5rem 0;display:none">No pre-computed translation metrics yet. Run metrics/metrics_evaluator.py after training.</p>
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <p class="section-title">ASR Metrics - Whisper Indian Accent</p>
+      <div style="overflow-x:auto">
+        <table id="asrMetricsTable" style="width:100%;border-collapse:collapse;font-size:.82rem">
+          <thead><tr id="asrHead" style="color:var(--text-secondary);border-bottom:1px solid var(--border)"></tr></thead>
+          <tbody id="asrBody"></tbody>
+        </table>
+      </div>
+      <p id="asrEmpty" style="color:var(--text-secondary);font-size:.85rem;text-align:center;padding:1.5rem 0;display:none">No ASR metrics yet.</p>
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <p class="section-title">Live Runtime Stats (This Session)</p>
+      <div id="liveStatsContainer"><p style="color:var(--text-secondary);font-size:.85rem">Make some translation requests to see live latency stats.</p></div>
+    </div>
+    <div class="card">
+      <p class="section-title">Metric Definitions</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.6rem">
+        <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:.6rem .85rem"><strong style="color:var(--accent-1)">BLEU</strong><br/><span style="font-size:.8rem;color:var(--text-secondary)">Bilingual Evaluation Understudy - 0 to 100 - higher = more n-gram overlap</span></div>
+        <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:.6rem .85rem"><strong style="color:var(--accent-1)">chrF</strong><br/><span style="font-size:.8rem;color:var(--text-secondary)">Character F-score - 0 to 100 - better for morphologically rich languages</span></div>
+        <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:.6rem .85rem"><strong style="color:var(--accent-1)">TER</strong><br/><span style="font-size:.8rem;color:var(--text-secondary)">Translation Edit Rate - 0 to inf - lower = fewer edits needed</span></div>
+        <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:.6rem .85rem"><strong style="color:var(--accent-1)">ROUGE-L</strong><br/><span style="font-size:.8rem;color:var(--text-secondary)">Longest Common Subsequence F1 - 0 to 1 - higher is better</span></div>
+        <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:.6rem .85rem"><strong style="color:var(--accent-1)">BERTScore</strong><br/><span style="font-size:.8rem;color:var(--text-secondary)">Semantic similarity via BERT embeddings - 0 to 1 - higher is better</span></div>
+        <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:.6rem .85rem"><strong style="color:var(--accent-1)">WER</strong><br/><span style="font-size:.8rem;color:var(--text-secondary)">Word Error Rate for ASR - 0 to 1 - lower = fewer word mistakes</span></div>
+        <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:.6rem .85rem"><strong style="color:var(--accent-1)">CER</strong><br/><span style="font-size:.8rem;color:var(--text-secondary)">Character Error Rate - 0 to 1 - lower is better</span></div>
+        <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:.6rem .85rem"><strong style="color:var(--accent-1)">RTF</strong><br/><span style="font-size:.8rem;color:var(--text-secondary)">Real-Time Factor = proc_time/audio_duration - below 1 means real-time capable</span></div>
+        <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:.6rem .85rem"><strong style="color:var(--accent-1)">Throughput</strong><br/><span style="font-size:.8rem;color:var(--text-secondary)">Tokens translated per second - higher is faster inference</span></div>
+        <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:.6rem .85rem"><strong style="color:var(--accent-1)">p95 Latency</strong><br/><span style="font-size:.8rem;color:var(--text-secondary)">95th percentile response time ms - the worst common case</span></div>
+      </div>
+    </div>
+  </div><!-- /tab-metrics -->
 </div><!-- /container -->
 
 <!-- Toast container -->
@@ -681,18 +733,18 @@ const DEBOUNCE_MS = 500;
    LANGUAGE DATA (fetched from /languages, populated here as fallback)
    ========================================================= */
 const FALLBACK_LANGS = [
-  {code:'en',name:'English',flag:'🇬🇧'},{code:'hi',name:'Hindi',flag:'🇮🇳'},
-  {code:'bn',name:'Bengali',flag:'🇧🇩'},{code:'ta',name:'Tamil',flag:'🇮🇳'},
-  {code:'te',name:'Telugu',flag:'🇮🇳'},{code:'mr',name:'Marathi',flag:'🇮🇳'},
-  {code:'gu',name:'Gujarati',flag:'🇮🇳'},{code:'kn',name:'Kannada',flag:'🇮🇳'},
-  {code:'ml',name:'Malayalam',flag:'🇮🇳'},{code:'pa',name:'Punjabi',flag:'🇮🇳'},
-  {code:'ur',name:'Urdu',flag:'🇵🇰'},{code:'or',name:'Odia',flag:'🇮🇳'},
-  {code:'as',name:'Assamese',flag:'🇮🇳'},{code:'ne',name:'Nepali',flag:'🇳🇵'},
-  {code:'si',name:'Sinhala',flag:'🇱🇰'},{code:'fr',name:'French',flag:'🇫🇷'},
-  {code:'de',name:'German',flag:'🇩🇪'},{code:'es',name:'Spanish',flag:'🇪🇸'},
-  {code:'ar',name:'Arabic',flag:'🇸🇦'},{code:'zh',name:'Chinese',flag:'🇨🇳'},
-  {code:'ja',name:'Japanese',flag:'🇯🇵'},{code:'ko',name:'Korean',flag:'🇰🇷'},
-  {code:'ru',name:'Russian',flag:'🇷🇺'},{code:'pt',name:'Portuguese',flag:'🇧🇷'},
+  {code:'en',name:'English',flag:'ðŸ‡¬ðŸ‡§'},{code:'hi',name:'Hindi',flag:'ðŸ‡®ðŸ‡³'},
+  {code:'bn',name:'Bengali',flag:'ðŸ‡§ðŸ‡©'},{code:'ta',name:'Tamil',flag:'ðŸ‡®ðŸ‡³'},
+  {code:'te',name:'Telugu',flag:'ðŸ‡®ðŸ‡³'},{code:'mr',name:'Marathi',flag:'ðŸ‡®ðŸ‡³'},
+  {code:'gu',name:'Gujarati',flag:'ðŸ‡®ðŸ‡³'},{code:'kn',name:'Kannada',flag:'ðŸ‡®ðŸ‡³'},
+  {code:'ml',name:'Malayalam',flag:'ðŸ‡®ðŸ‡³'},{code:'pa',name:'Punjabi',flag:'ðŸ‡®ðŸ‡³'},
+  {code:'ur',name:'Urdu',flag:'ðŸ‡µðŸ‡°'},{code:'or',name:'Odia',flag:'ðŸ‡®ðŸ‡³'},
+  {code:'as',name:'Assamese',flag:'ðŸ‡®ðŸ‡³'},{code:'ne',name:'Nepali',flag:'ðŸ‡³ðŸ‡µ'},
+  {code:'si',name:'Sinhala',flag:'ðŸ‡±ðŸ‡°'},{code:'fr',name:'French',flag:'ðŸ‡«ðŸ‡·'},
+  {code:'de',name:'German',flag:'ðŸ‡©ðŸ‡ª'},{code:'es',name:'Spanish',flag:'ðŸ‡ªðŸ‡¸'},
+  {code:'ar',name:'Arabic',flag:'ðŸ‡¸ðŸ‡¦'},{code:'zh',name:'Chinese',flag:'ðŸ‡¨ðŸ‡³'},
+  {code:'ja',name:'Japanese',flag:'ðŸ‡¯ðŸ‡µ'},{code:'ko',name:'Korean',flag:'ðŸ‡°ðŸ‡·'},
+  {code:'ru',name:'Russian',flag:'ðŸ‡·ðŸ‡º'},{code:'pt',name:'Portuguese',flag:'ðŸ‡§ðŸ‡·'},
 ];
 
 let supportedLanguages = FALLBACK_LANGS;
@@ -743,7 +795,7 @@ function populateSelect(elId, langs, addAuto = false) {
   el.innerHTML = '';
   if (addAuto) {
     const opt = document.createElement('option');
-    opt.value = 'auto'; opt.textContent = '🔍 Auto-detect';
+    opt.value = 'auto'; opt.textContent = 'ðŸ” Auto-detect';
     el.appendChild(opt);
   }
   langs.forEach(l => {
@@ -797,7 +849,7 @@ async function checkHealth() {
       txt.textContent = 'Models ready';
     } else {
       dot.className = 'status-dot';
-      txt.textContent = 'Loading models…';
+      txt.textContent = 'Loading modelsâ€¦';
       setTimeout(checkHealth, 4000);
     }
   } catch {
@@ -912,7 +964,7 @@ async function doTranslate() {
   btn.disabled = true;
 
   const outBox = document.getElementById('outputBox');
-  outBox.innerHTML = '<span style="color:var(--text-secondary);font-style:italic">Translating…</span>';
+  outBox.innerHTML = '<span style="color:var(--text-secondary);font-style:italic">Translatingâ€¦</span>';
 
   try {
     const r = await fetch(`${API_BASE}/translate`, {
@@ -927,7 +979,7 @@ async function doTranslate() {
     const data = await r.json();
     outBox.textContent = data.translated_text;
     document.getElementById('latencyBadge').textContent =
-      `${data.model_used} · ${data.latency_ms.toFixed(0)}ms`;
+      `${data.model_used} Â· ${data.latency_ms.toFixed(0)}ms`;
 
     // Update source lang indicator
     if (src === 'auto') {
@@ -982,7 +1034,7 @@ document.getElementById('detectBtn').addEventListener('click', async () => {
    ========================================================= */
 document.getElementById('clearBtn').addEventListener('click', () => {
   document.getElementById('srcText').value = '';
-  document.getElementById('outputBox').innerHTML = '<span class="placeholder">Translation will appear here…</span>';
+  document.getElementById('outputBox').innerHTML = '<span class="placeholder">Translation will appear hereâ€¦</span>';
   document.getElementById('charCount').textContent = '0 / 2000';
   document.getElementById('latencyBadge').textContent = '';
 });
@@ -1031,9 +1083,9 @@ function renderHistory() {
     const li = document.createElement('li');
     li.className = 'history-item';
     li.innerHTML = `
-      <div class="hi-langs">${srcLang ? srcLang.flag + ' ' + srcLang.name : item.srcLang} → ${tgtLang ? tgtLang.flag + ' ' + tgtLang.name : item.tgtLang}</div>
-      <div class="hi-src">${item.srcText.slice(0, 80)}${item.srcText.length > 80 ? '…' : ''}</div>
-      <div class="hi-tgt">${item.tgtText.slice(0, 80)}${item.tgtText.length > 80 ? '…' : ''}</div>`;
+      <div class="hi-langs">${srcLang ? srcLang.flag + ' ' + srcLang.name : item.srcLang} â†’ ${tgtLang ? tgtLang.flag + ' ' + tgtLang.name : item.tgtLang}</div>
+      <div class="hi-src">${item.srcText.slice(0, 80)}${item.srcText.length > 80 ? 'â€¦' : ''}</div>
+      <div class="hi-tgt">${item.tgtText.slice(0, 80)}${item.tgtText.length > 80 ? 'â€¦' : ''}</div>`;
     li.addEventListener('click', () => {
       document.getElementById('srcText').value = item.srcText;
       document.getElementById('outputBox').textContent = item.tgtText;
@@ -1052,7 +1104,7 @@ document.getElementById('clearHistoryBtn').addEventListener('click', () => {
 });
 
 /* =========================================================
-   VOICE TAB – RECORDING
+   VOICE TAB â€“ RECORDING
    ========================================================= */
 const recordBtn = document.getElementById('recordBtn');
 const recordLabel = document.getElementById('recordLabel');
@@ -1082,10 +1134,10 @@ async function startRecording() {
     mediaRecorder.start(100);
     isRecording = true;
     recordBtn.classList.add('recording');
-    recordBtn.textContent = '⏹';
-    recordLabel.textContent = 'Recording… tap to stop';
+    recordBtn.textContent = 'â¹';
+    recordLabel.textContent = 'Recordingâ€¦ tap to stop';
     waveform.classList.add('recording-active');
-    transcriptBox.textContent = 'Listening…';
+    transcriptBox.textContent = 'Listeningâ€¦';
     transcriptBox.classList.remove('has-text');
   } catch (err) {
     toast(`Microphone error: ${err.message}`, 'error');
@@ -1098,8 +1150,8 @@ function stopRecording() {
   }
   isRecording = false;
   recordBtn.classList.remove('recording');
-  recordBtn.textContent = '🎤';
-  recordLabel.textContent = 'Processing…';
+  recordBtn.textContent = 'ðŸŽ¤';
+  recordLabel.textContent = 'Processingâ€¦';
   waveform.classList.remove('recording-active');
 }
 
@@ -1111,9 +1163,9 @@ document.getElementById('audioUpload').addEventListener('change', async e => {
 });
 
 async function processAudio(blob) {
-  transcriptBox.textContent = 'Transcribing…';
+  transcriptBox.textContent = 'Transcribingâ€¦';
   transcriptBox.classList.remove('has-text');
-  voiceOutputBox.innerHTML = '<span class="placeholder">Translation will appear here…</span>';
+  voiceOutputBox.innerHTML = '<span class="placeholder">Translation will appear hereâ€¦</span>';
   recordLabel.textContent = 'Tap to record';
 
   const formData = new FormData();
@@ -1138,7 +1190,7 @@ async function processAudio(blob) {
     const trData = await tr.json();
     voiceOutputBox.textContent = trData.translated_text;
     document.getElementById('voiceLatencyBadge').textContent =
-      `${trData.model_used} · ${trData.latency_ms.toFixed(0)}ms`;
+      `${trData.model_used} Â· ${trData.latency_ms.toFixed(0)}ms`;
   } catch (err) {
     transcriptBox.textContent = `Error: ${err.message}`;
     toast(`Audio processing failed: ${err.message}`, 'error');
@@ -1155,7 +1207,7 @@ const wsConnectBtn = document.getElementById('wsConnectBtn');
 
 function setWsStatus(state) {
   wsStatusEl.className = `ws-status ${state}`;
-  const labels = {connected: '⬤ Connected', disconnected: '⬤ Disconnected', connecting: '⬤ Connecting…'};
+  const labels = {connected: 'â¬¤ Connected', disconnected: 'â¬¤ Disconnected', connecting: 'â¬¤ Connectingâ€¦'};
   wsStatusEl.textContent = labels[state] || state;
 }
 
@@ -1166,7 +1218,7 @@ function connectWs() {
 
   wsTranslate.onopen = () => {
     setWsStatus('connected');
-    wsConnectBtn.textContent = '🔌 Disconnect';
+    wsConnectBtn.textContent = 'ðŸ”Œ Disconnect';
     toast('WebSocket connected!', 'success');
   };
 
@@ -1188,7 +1240,7 @@ function connectWs() {
 
   wsTranslate.onclose = () => {
     setWsStatus('disconnected');
-    wsConnectBtn.textContent = '🔌 Connect WebSocket';
+    wsConnectBtn.textContent = 'ðŸ”Œ Connect WebSocket';
     if (wsReconnectTimer) clearTimeout(wsReconnectTimer);
     wsReconnectTimer = setTimeout(connectWs, 5000);
   };
@@ -1202,7 +1254,7 @@ function disconnectWs() {
   if (wsReconnectTimer) clearTimeout(wsReconnectTimer);
   if (wsTranslate) { wsTranslate.close(); wsTranslate = null; }
   setWsStatus('disconnected');
-  wsConnectBtn.textContent = '🔌 Connect WebSocket';
+  wsConnectBtn.textContent = 'ðŸ”Œ Connect WebSocket';
 }
 
 wsConnectBtn.addEventListener('click', () => {
@@ -1262,6 +1314,146 @@ async function init() {
 }
 
 init();
+
+/* =========================================================
+   METRICS DASHBOARD
+   ========================================================= */
+
+async function loadMetrics() {
+  const statusEl = document.getElementById('metricsStatus');
+  statusEl.textContent = 'Fetching metrics…';
+  try {
+    const [sumRes, fullRes] = await Promise.all([
+      fetch('/metrics/summary'),
+      fetch('/metrics'),
+    ]);
+    if (!sumRes.ok) throw new Error(`HTTP ${sumRes.status}`);
+    const sum  = await sumRes.json();
+    const full = await fullRes.json();
+    statusEl.textContent = `Source: ${full.source === 'pre_computed' ? '✅ Pre-computed benchmarks' : '⚡ Live runtime only'} · ${new Date().toLocaleTimeString()}`;
+    renderSummaryCards(sum.summary || []);
+    renderTranslationTable(full.pre_computed_metrics || []);
+    renderASRTable(full.pre_computed_metrics || []);
+    renderLiveStats(full.live_runtime_stats || {});
+  } catch (e) {
+    statusEl.textContent = `⚠️ Could not load metrics: ${e.message}`;
+  }
+}
+
+function renderSummaryCards(summary) {
+  const container = document.getElementById('modelSummaryCards');
+  if (!summary.length) { container.innerHTML = '<p style="color:var(--text-secondary);font-size:.85rem">No model summary data yet.</p>'; return; }
+  const COLORS = { 'custom-hybrid-v1': '#6c63ff', 'nllb-200-600m-qlora': '#a855f7', 'whisper-small-indian-lora': '#06b6d4' };
+  container.innerHTML = summary.map(m => {
+    const color = COLORS[m.model] || '#6c63ff';
+    const isTrans = m.type === 'translation';
+    const mainMetric = isTrans ? `BLEU ${m.avg_bleu ?? 'N/A'}` : `WER ${m.avg_wer ?? 'N/A'}`;
+    const sub1 = isTrans ? `chrF ${m.avg_chrf ?? 'N/A'}` : `CER ${m.avg_cer ?? 'N/A'}`;
+    const sub2 = isTrans ? `TER ${m.avg_ter ?? 'N/A'}` : `RTF ${m.avg_rtf ?? 'N/A'}`;
+    const lat  = m.avg_latency_ms != null ? `${m.avg_latency_ms} ms` : 'N/A';
+    const thr  = m.avg_throughput_tok_s != null ? `${m.avg_throughput_tok_s} tok/s` : '';
+    return `
+    <div style="background:var(--bg-card2);border-radius:var(--radius);padding:1rem;border-left:3px solid ${color}">
+      <div style="font-weight:700;color:${color};font-size:.88rem;margin-bottom:.4rem">${m.model}</div>
+      <div style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.6rem">${m.type.toUpperCase()} · ${m.backend || ''} · ${m.quantization || ''}</div>
+      <div style="font-size:1.5rem;font-weight:700;color:var(--text-primary);margin-bottom:.2rem">${mainMetric}</div>
+      <div style="font-size:.8rem;color:var(--text-secondary)">${sub1} &nbsp;·&nbsp; ${sub2}</div>
+      <div style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border);display:flex;gap:.75rem;font-size:.8rem">
+        <span>⏱ ${lat}</span>${thr ? `<span>🚀 ${thr}</span>` : ''}
+        ${m.params_M ? `<span>🧮 ${m.params_M}M params</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderTranslationTable(precomputed) {
+  const rows = [];
+  (precomputed || []).forEach(b => {
+    (b.translation_metrics || []).forEach(m => rows.push({ model: b.model_name, ...m }));
+  });
+  const thead = document.getElementById('transHead');
+  const tbody = document.getElementById('transBody');
+  const empty = document.getElementById('transEmpty');
+  if (!rows.length) { thead.innerHTML = ''; tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  const cols = ['model','language_pair','bleu','chrf','ter','rouge_l','bert_score_f1','length_ratio','latency_ms','throughput_tokens_per_sec','num_samples'];
+  const labels = { model:'Model', language_pair:'Lang Pair', bleu:'BLEU↑', chrf:'chrF↑', ter:'TER↓', rouge_l:'ROUGE-L↑', bert_score_f1:'BERTScore↑', length_ratio:'Len Ratio', latency_ms:'Latency(ms)↓', throughput_tokens_per_sec:'Tok/s↑', num_samples:'N' };
+  thead.innerHTML = cols.map(c => `<th style="padding:.45rem .6rem;text-align:left;white-space:nowrap;font-weight:600">${labels[c]||c}</th>`).join('');
+  const BEST = {};  // track best BLEU per lang pair
+  rows.forEach(r => { if (!BEST[r.language_pair] || r.bleu > BEST[r.language_pair]) BEST[r.language_pair] = r.bleu; });
+  tbody.innerHTML = rows.map((r,i) => {
+    const isBestBleu = r.bleu === BEST[r.language_pair];
+    return `<tr style="border-bottom:1px solid var(--border);background:${i%2===0?'transparent':'rgba(255,255,255,.02)'}">
+      ${cols.map(c => {
+        let v = r[c];
+        let style = 'padding:.4rem .6rem;white-space:nowrap';
+        if (c === 'bleu' && isBestBleu) style += ';color:var(--success);font-weight:700';
+        if (c === 'ter' && v < 50) style += ';color:var(--success)';
+        if (c === 'wer' && v < 0.2) style += ';color:var(--success)';
+        if (v === null || v === undefined || v < 0) v = '—';
+        else if (typeof v === 'number') v = v.toFixed(c === 'bleu'||c==='chrf'||c==='ter' ? 2 : c==='latency_ms'||c==='throughput_tokens_per_sec' ? 1 : 4);
+        return `<td style="${style}">${v}</td>`;
+      }).join('')}
+    </tr>`;
+  }).join('');
+}
+
+function renderASRTable(precomputed) {
+  const rows = [];
+  (precomputed || []).forEach(b => {
+    (b.asr_metrics || []).forEach(m => rows.push({ model: b.model_name, ...m }));
+  });
+  const thead = document.getElementById('asrHead');
+  const tbody = document.getElementById('asrBody');
+  const empty = document.getElementById('asrEmpty');
+  if (!rows.length) { thead.innerHTML = ''; tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  const cols = ['model','language','wer','cer','mer','rtf','latency_ms','num_samples'];
+  const labels = { model:'Model', language:'Language', wer:'WER↓', cer:'CER↓', mer:'MER↓', rtf:'RTF↓', latency_ms:'Latency(ms)', num_samples:'N' };
+  thead.innerHTML = cols.map(c => `<th style="padding:.45rem .6rem;text-align:left;white-space:nowrap;font-weight:600">${labels[c]||c}</th>`).join('');
+  tbody.innerHTML = rows.map((r,i) => `<tr style="border-bottom:1px solid var(--border);background:${i%2===0?'transparent':'rgba(255,255,255,.02)'}">
+    ${cols.map(c => {
+      let v = r[c];
+      let style = 'padding:.4rem .6rem;white-space:nowrap';
+      if ((c==='wer'||c==='cer') && typeof v === 'number' && v < 0.2) style += ';color:var(--success);font-weight:700';
+      if (v === null || v === undefined || v < 0) v = '—';
+      else if (typeof v === 'number') v = v.toFixed(c==='latency_ms' ? 1 : 4);
+      return `<td style="${style}">${v}</td>`;
+    }).join('')}
+  </tr>`).join('');
+}
+
+function renderLiveStats(live) {
+  const el = document.getElementById('liveStatsContainer');
+  if (!live || !live.per_model || !Object.keys(live.per_model).length) return;
+  const totalReq = live.total_requests || 0;
+  const windowSec = live.window_seconds != null ? (live.window_seconds/60).toFixed(1) : '?';
+  let html = `<p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:.75rem">${totalReq} requests in last ${windowSec} min</p>`;
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.6rem">';
+  for (const [model, stats] of Object.entries(live.per_model)) {
+    html += `<div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:.75rem">
+      <div style="font-weight:600;color:var(--accent-2);margin-bottom:.4rem;font-size:.85rem">${model || 'default'}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;font-size:.8rem">
+        <span style="color:var(--text-secondary)">Requests</span><span>${stats.requests}</span>
+        <span style="color:var(--text-secondary)">Avg latency</span><span>${stats.avg_latency_ms} ms</span>
+        <span style="color:var(--text-secondary)">p50</span><span>${stats.p50_latency_ms} ms</span>
+        <span style="color:var(--text-secondary)">p95</span><span style="${stats.p95_latency_ms>500?'color:var(--warning)':'color:var(--success)'}">${stats.p95_latency_ms} ms</span>
+        <span style="color:var(--text-secondary)">p99</span><span>${stats.p99_latency_ms} ms</span>
+        <span style="color:var(--text-secondary)">Min/Max</span><span>${stats.min_latency_ms}/${stats.max_latency_ms} ms</span>
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// Auto-load when metrics tab is clicked
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.tab === 'metrics') loadMetrics();
+  });
+});
 </script>
 </body>
 </html>
+
