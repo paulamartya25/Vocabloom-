@@ -1,4 +1,4 @@
-﻿"""
+"""
 Generates a fully self-contained phase1_notebook.ipynb for Kaggle.
 Run this script LOCALLY to regenerate the notebook whenever the .py files change.
 """
@@ -236,6 +236,318 @@ else:
         print(f"\\n  Files in {work_dir}: {[f.name for f in files[:20]]}")
     else:
         print(f"\\n  Directory {work_dir} does not exist yet.")'''),
+
+    markdown("## Step 5c — Classification Metrics: Precision, Recall, F1, ROC-AUC & Confusion Matrix"),
+    code('''# ══════════════════════════════════════════════════════════════════
+# Classification Metrics for Language Detection (24-class classifier)
+# Metrics: Precision, Recall, F1, Confusion Matrix, ROC-AUC, PR Curves
+# ══════════════════════════════════════════════════════════════════
+import subprocess, sys
+
+# Install extra deps if needed
+subprocess.run([sys.executable, "-m", "pip", "install", "-q",
+                "scikit-learn>=1.4.0", "langdetect==1.0.9"], check=False)
+
+import json, pathlib, warnings
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+warnings.filterwarnings("ignore")
+
+from langdetect import detect, LangDetectException
+from sklearn.metrics import (
+    classification_report, confusion_matrix,
+    precision_score, recall_score, f1_score, accuracy_score,
+    roc_curve, auc, precision_recall_curve, average_precision_score,
+)
+from sklearn.preprocessing import label_binarize
+
+# Dark theme
+plt.rcParams.update({
+    "figure.facecolor": "#0d0d14", "axes.facecolor": "#1a1a2e",
+    "axes.edgecolor": "#2a2a4a", "text.color": "#f0f0ff",
+    "axes.labelcolor": "#f0f0ff", "xtick.color": "#9898b8",
+    "ytick.color": "#9898b8", "grid.color": "#2a2a4a",
+})
+
+# ── 24-language test corpus ───────────────────────────────────────────────────
+LANGUAGES = {
+    "en":"English","hi":"Hindi","bn":"Bengali","ta":"Tamil","te":"Telugu",
+    "mr":"Marathi","gu":"Gujarati","kn":"Kannada","ml":"Malayalam","pa":"Punjabi",
+    "ur":"Urdu","fr":"French","de":"German","es":"Spanish","it":"Italian",
+    "pt":"Portuguese","nl":"Dutch","pl":"Polish","ro":"Romanian","sv":"Swedish",
+    "cs":"Czech","zh":"Chinese","ja":"Japanese","ko":"Korean",
+}
+
+CORPUS = [
+    ("The quick brown fox jumps over the lazy dog.", "en"),
+    ("Artificial intelligence is transforming the world.", "en"),
+    ("She walked into the library and picked up a book.", "en"),
+    ("The government announced new economic policies today.", "en"),
+    ("नमस्ते, आप कैसे हैं? मुझे आशा है आप ठीक हैं।", "hi"),
+    ("भारत एक विविधताओं से भरा देश है।", "hi"),
+    ("मैं मुंबई में रहता हूं और वहां काम करता हूं।", "hi"),
+    ("আমি বাংলা বলি এবং বাংলাদেশে থাকি।", "bn"),
+    ("আজকের আবহাওয়া খুব সুন্দর।", "bn"),
+    ("নান் தமிழ் பேசுகிறேன் மற்றும் சென்னையில் வசிக்கிறேன்.", "ta"),
+    ("நேடு வானிலை மிகவும் அழகாக உள்ளது.", "ta"),
+    ("నేను తెలుగు మాట్లాడతాను మరియు హైదరాబాద్‌లో నివసిస్తున్నాను.", "te"),
+    ("మీ మరాఠీ బోలతో ఆణి పుణ్యాత్ రాహతో.", "mr"),
+    ("हुं ગુজরાতી બોलું છું અને અમદાવાદમાં રહું છું.", "gu"),
+    ("ನಾನು ಕನ್ನಡ ಮಾತನಾಡುತ್ತೇನೆ ಮತ್ತು ಬೆಂಗಳೂರಿನಲ್ಲಿ ವಾಸಿಸುತ್ತೇನೆ.", "kn"),
+    ("ഞാൻ മലയാളം സംസാരിക്കുന്നു, കേരളത്തിൽ താമസിക്കുന്നു.", "ml"),
+    ("ਮੈਂ ਪੰਜਾਬੀ ਬੋਲਦਾ ਹਾਂ ਅਤੇ ਅੰਮ੍ਰਿਤਸਰ ਵਿੱਚ ਰਹਿੰਦਾ ਹਾਂ।", "pa"),
+    ("میں اردو بولتا ہوں اور لاہور میں رہتا ہوں۔", "ur"),
+    ("Bonjour, comment allez-vous? J\'espère que vous allez bien.", "fr"),
+    ("La France est un pays magnifique avec une riche histoire.", "fr"),
+    ("L\'intelligence artificielle transforme notre monde.", "fr"),
+    ("Guten Tag, wie geht es Ihnen? Ich hoffe, es geht Ihnen gut.", "de"),
+    ("Künstliche Intelligenz verändert unsere Welt.", "de"),
+    ("Hola, ¿cómo estás? Espero que estés bien hoy.", "es"),
+    ("La inteligencia artificial está transformando el mundo.", "es"),
+    ("Ciao, come stai? Spero che tu stia bene oggi.", "it"),
+    ("L\'intelligenza artificiale sta trasformando il mondo.", "it"),
+    ("Olá, como você está? Espero que esteja bem.", "pt"),
+    ("Hallo, hoe gaat het met u? Kunstmatige intelligentie.", "nl"),
+    ("Cześć, jak się masz? Sztuczna inteligencja zmienia świat.", "pl"),
+    ("Bună ziua, cum vă mai simțiți? România este frumoasă.", "ro"),
+    ("Hej, hur mår du? Artificiell intelligens förändrar världen.", "sv"),
+    ("Dobrý den, jak se máte? Česká republika je krásná.", "cs"),
+    ("你好，你好吗？人工智能正在改变我们的世界。", "zh"),
+    ("中国是一个拥有悠久历史的美丽国家。", "zh"),
+    ("こんにちは、お元気ですか？人工知能は世界を変えています。", "ja"),
+    ("日本は豊かな歴史を持つ美しい国です。", "ja"),
+    ("안녕하세요, 어떻게 지내세요? 인공지능이 세계를 바꾸고 있습니다.", "ko"),
+    ("한국은 풍부한 역사를 가진 아름다운 나라입니다.", "ko"),
+]
+
+# ── Run detection ─────────────────────────────────────────────────────────────
+print("Running language detection on", len(CORPUS), "samples...")
+lang_set = set(LANGUAGES.keys())
+y_true, y_pred = [], []
+for text, true_lang in CORPUS:
+    try:
+        pred = detect(text)
+        if pred.startswith("zh"): pred = "zh"
+        if pred not in lang_set: pred = pred[:2] if pred[:2] in lang_set else "unknown"
+    except LangDetectException:
+        pred = "unknown"
+    y_true.append(true_lang)
+    y_pred.append(pred)
+
+labels = sorted(set(y_true + y_pred) & lang_set)
+print(f"Labels detected: {len(labels)} languages")
+
+# ── Core metrics ──────────────────────────────────────────────────────────────
+acc  = accuracy_score(y_true, y_pred)
+mp   = precision_score(y_true, y_pred, average="macro",    labels=labels, zero_division=0)
+mr   = recall_score   (y_true, y_pred, average="macro",    labels=labels, zero_division=0)
+mf1  = f1_score       (y_true, y_pred, average="macro",    labels=labels, zero_division=0)
+wp   = precision_score(y_true, y_pred, average="weighted", labels=labels, zero_division=0)
+wr   = recall_score   (y_true, y_pred, average="weighted", labels=labels, zero_division=0)
+wf1  = f1_score       (y_true, y_pred, average="weighted", labels=labels, zero_division=0)
+
+report = classification_report(y_true, y_pred, labels=labels,
+                                output_dict=True, zero_division=0)
+
+print(f"""
+╔══════════════════════════════════════════════╗
+║   LANGUAGE DETECTION — CLASSIFICATION REPORT ║
+╠══════════════════════════════════════════════╣
+║  Accuracy          : {acc:.4f}               ║
+║  Macro  Precision  : {mp:.4f}               ║
+║  Macro  Recall     : {mr:.4f}               ║
+║  Macro  F1-Score   : {mf1:.4f}               ║
+║  Weighted Precision: {wp:.4f}               ║
+║  Weighted Recall   : {wr:.4f}               ║
+║  Weighted F1-Score : {wf1:.4f}               ║
+╚══════════════════════════════════════════════╝
+""")
+
+# Per-language table
+print(f"{'Lang':<6} {'Name':<14} {'Precision':>10} {'Recall':>8} {'F1':>8} {'Support':>8}")
+print("-" * 58)
+for code in labels:
+    if code not in report: continue
+    m = report[code]
+    name = LANGUAGES.get(code, code)
+    print(f"{code:<6} {name:<14} {m['precision']:>10.4f} {m['recall']:>8.4f} {m['f1-score']:>8.4f} {int(m['support']):>8}")
+
+# Save JSON
+out = pathlib.Path("/kaggle/working/metrics/classification")
+out.mkdir(parents=True, exist_ok=True)
+with open(out / "lang_detection_report.json", "w") as f:
+    safe = {k:v for k,v in report.items()}
+    json.dump({"accuracy":acc,"macro_f1":mf1,"weighted_f1":wf1,"per_class":safe}, f, indent=2)
+print(f"\\nSaved JSON → {out / 'lang_detection_report.json'}")'''),
+
+    code('''# ── PLOT 1: Confusion Matrix ─────────────────────────────────────────────────
+import pathlib, numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+
+out = pathlib.Path("/kaggle/working/metrics/classification")
+n   = len(labels)
+cm  = confusion_matrix(y_true, y_pred, labels=labels)
+with np.errstate(divide="ignore", invalid="ignore"):
+    cm_norm = np.where(cm.sum(1,keepdims=True)==0, 0, cm/cm.sum(1,keepdims=True))
+
+fig, ax = plt.subplots(figsize=(max(10,n*0.65), max(8,n*0.55)))
+fig.patch.set_facecolor("#0d0d14"); ax.set_facecolor("#0d0d14")
+im = ax.imshow(cm_norm, cmap="Blues", vmin=0, vmax=1)
+
+names = [f"{c}\\n{LANGUAGES.get(c,c)}" for c in labels]
+ax.set_xticks(range(n)); ax.set_xticklabels(names, rotation=90, fontsize=7, color="#9898b8")
+ax.set_yticks(range(n)); ax.set_yticklabels(names, fontsize=7, color="#9898b8")
+ax.set_xlabel("Predicted Language", color="#f0f0ff", fontsize=11)
+ax.set_ylabel("True Language",      color="#f0f0ff", fontsize=11)
+ax.set_title("Language Detection — Confusion Matrix (Row-normalised Recall)",
+             color="#f0f0ff", fontsize=12, fontweight="bold")
+
+for i in range(n):
+    for j in range(n):
+        v = cm[i,j]
+        if v > 0:
+            col = "white" if cm_norm[i,j] > 0.5 else "#aaaacc"
+            ax.text(j, i, str(v), ha="center", va="center",
+                    fontsize=max(5, 8-n//6), color=col, fontweight="bold")
+
+cbar = fig.colorbar(im, ax=ax, fraction=0.03, pad=0.02)
+cbar.set_label("Recall (row-normalised)", color="#9898b8", fontsize=9)
+cbar.ax.tick_params(colors="#9898b8")
+
+plt.tight_layout()
+plt.savefig(out/"lang_confusion_matrix.png", dpi=150, facecolor="#0d0d14", bbox_inches="tight")
+plt.show()
+print("Saved → lang_confusion_matrix.png")'''),
+
+    code('''# ── PLOT 2: Per-Language Precision / Recall / F1 Bar Chart ──────────────────
+import numpy as np
+import matplotlib.pyplot as plt
+import pathlib
+
+out = pathlib.Path("/kaggle/working/metrics/classification")
+langs_present = [l for l in labels if l in LANGUAGES]
+precs = [report[l]["precision"] for l in langs_present]
+recs  = [report[l]["recall"]    for l in langs_present]
+f1s   = [report[l]["f1-score"]  for l in langs_present]
+names = [f"{l}\\n{LANGUAGES[l]}" for l in langs_present]
+
+x = np.arange(len(langs_present)); w = 0.26
+fig, ax = plt.subplots(figsize=(max(12,len(langs_present)*0.75), 5))
+fig.patch.set_facecolor("#0d0d14"); ax.set_facecolor("#1a1a2e")
+ax.bar(x-w, precs, w, label="Precision", color="#6c63ff", edgecolor="none")
+ax.bar(x,   recs,  w, label="Recall",    color="#a855f7", edgecolor="none")
+ax.bar(x+w, f1s,   w, label="F1-Score",  color="#06b6d4", edgecolor="none")
+ax.set_xticks(x); ax.set_xticklabels(names, fontsize=8, color="#9898b8")
+ax.set_ylim(0, 1.15); ax.set_ylabel("Score", color="#f0f0ff")
+ax.set_title("Per-Language Precision / Recall / F1-Score",
+             color="#f0f0ff", fontsize=13, fontweight="bold")
+ax.tick_params(colors="#9898b8"); ax.legend(framealpha=0.3, labelcolor="#f0f0ff")
+ax.grid(axis="y", alpha=0.2)
+for xi, f1 in zip(x+w, f1s):
+    if f1 > 0.05:
+        ax.text(xi, f1+0.02, f"{f1:.2f}", ha="center", va="bottom",
+                fontsize=7, color="#f0f0ff")
+plt.tight_layout()
+plt.savefig(out/"lang_per_class_metrics.png", dpi=150, facecolor="#0d0d14", bbox_inches="tight")
+plt.show()
+print("Saved → lang_per_class_metrics.png")'''),
+
+    code('''# ── PLOT 3: ROC-AUC Curves (One-vs-Rest per language) ────────────────────────
+import numpy as np
+import matplotlib.pyplot as plt
+import pathlib
+from sklearn.preprocessing import label_binarize
+from sklearn.metrics import roc_curve, auc
+
+out = pathlib.Path("/kaggle/working/metrics/classification")
+
+# Build soft-probability matrix from hard predictions
+def build_proba(y_t, y_p, lbls):
+    idx = {l:i for i,l in enumerate(lbls)}
+    P = np.full((len(y_t), len(lbls)), 0.01/(max(len(lbls)-1,1)))
+    for i,p in enumerate(y_p):
+        if p in idx: P[i,idx[p]] = 0.99
+    return P
+
+proba  = build_proba(y_true, y_pred, labels)
+y_bin  = label_binarize(y_true, classes=labels)
+COLORS = plt.cm.tab20(np.linspace(0,1,len(labels)))
+
+fig, ax = plt.subplots(figsize=(12, 8))
+fig.patch.set_facecolor("#0d0d14"); ax.set_facecolor("#1a1a2e")
+
+roc_aucs = {}
+for i, lang in enumerate(labels):
+    if y_bin.shape[1] <= i: continue
+    try:
+        fpr, tpr, _ = roc_curve(y_bin[:,i], proba[:,i])
+        roc_auc = auc(fpr, tpr)
+        roc_aucs[lang] = round(roc_auc, 4)
+        ax.plot(fpr, tpr, color=COLORS[i], lw=1.8,
+                label=f"{lang} ({LANGUAGES.get(lang,'')}): AUC={roc_auc:.3f}")
+    except Exception: pass
+
+ax.plot([0,1],[0,1],"w--",lw=0.8,alpha=0.4,label="Random (AUC=0.50)")
+ax.set_xlim([0,1]); ax.set_ylim([0,1.02])
+ax.set_xlabel("False Positive Rate", color="#f0f0ff", fontsize=11)
+ax.set_ylabel("True Positive Rate",  color="#f0f0ff", fontsize=11)
+ax.set_title("ROC Curves — Language Detection (One-vs-Rest)",
+             color="#f0f0ff", fontsize=13, fontweight="bold")
+ax.tick_params(colors="#9898b8"); ax.grid(alpha=0.15)
+ax.legend(loc="lower right", fontsize=7, framealpha=0.3, labelcolor="#f0f0ff", ncol=2)
+
+mean_auc = np.mean(list(roc_aucs.values())) if roc_aucs else 0
+ax.text(0.55, 0.08, f"Mean AUC = {mean_auc:.4f}", transform=ax.transAxes,
+        color="#10b981", fontsize=12, fontweight="bold")
+
+plt.tight_layout()
+plt.savefig(out/"lang_roc_curves.png", dpi=150, facecolor="#0d0d14", bbox_inches="tight")
+plt.show()
+print(f"Mean ROC-AUC across all languages: {mean_auc:.4f}")
+print("Saved → lang_roc_curves.png")'''),
+
+    code('''# ── PLOT 4: Precision-Recall Curves ──────────────────────────────────────────
+import numpy as np
+import matplotlib.pyplot as plt
+import pathlib
+from sklearn.metrics import precision_recall_curve, average_precision_score
+
+out = pathlib.Path("/kaggle/working/metrics/classification")
+COLORS = plt.cm.tab20(np.linspace(0,1,len(labels)))
+
+fig, ax = plt.subplots(figsize=(12, 8))
+fig.patch.set_facecolor("#0d0d14"); ax.set_facecolor("#1a1a2e")
+
+ap_scores = {}
+for i, lang in enumerate(labels):
+    if y_bin.shape[1] <= i: continue
+    try:
+        prec, rec, _ = precision_recall_curve(y_bin[:,i], proba[:,i])
+        ap = average_precision_score(y_bin[:,i], proba[:,i])
+        ap_scores[lang] = round(ap, 4)
+        ax.plot(rec, prec, color=COLORS[i], lw=1.8,
+                label=f"{lang} ({LANGUAGES.get(lang,'')}): AP={ap:.3f}")
+    except Exception: pass
+
+ax.set_xlim([0,1]); ax.set_ylim([0,1.05])
+ax.set_xlabel("Recall",    color="#f0f0ff", fontsize=11)
+ax.set_ylabel("Precision", color="#f0f0ff", fontsize=11)
+ax.set_title("Precision-Recall Curves — Language Detection (One-vs-Rest)",
+             color="#f0f0ff", fontsize=13, fontweight="bold")
+ax.tick_params(colors="#9898b8"); ax.grid(alpha=0.15)
+ax.legend(loc="upper right", fontsize=7, framealpha=0.3, labelcolor="#f0f0ff", ncol=2)
+plt.tight_layout()
+plt.savefig(out/"lang_pr_curves.png", dpi=150, facecolor="#0d0d14", bbox_inches="tight")
+plt.show()
+
+mean_ap = np.mean(list(ap_scores.values())) if ap_scores else 0
+print(f"Mean Average Precision: {mean_ap:.4f}")
+print("Saved → lang_pr_curves.png")
+print("\\nAll classification metric charts saved to /kaggle/working/metrics/classification/")
+print("Files:", [f.name for f in sorted(pathlib.Path("/kaggle/working/metrics/classification").iterdir())])'''),
 
     markdown("## Step 6 — Train the Hybrid Model"),
     code('''import subprocess, sys, time, os
