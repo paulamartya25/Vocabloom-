@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ML / Model artifacts
+*.bin
+*.safetensors
+*.onnx
+*.pt
+*.pth
+checkpoints/
+runs/
+wandb/
+mlruns/
+*.log
+training_log.jsonl
+
+# Data
+*.parquet
+*.arrow
+*.csv
+/data/
+/datasets/
+
+# Environment
+.env
+*.env.local
+*.env.production
+.env.*
+!.env.example
+
+# Docker
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# HuggingFace cache
+~/.cache/huggingface/
+/tmp/models/
+
+# Kaggle working directory outputs
+/kaggle/working/
+
+# Large model files (tracked via Git LFS if needed)
+ct2_model/
+onnx_model/
+merged_model/

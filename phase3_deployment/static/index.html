@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🌐 Multilingual Translator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* =========================================================
+   CSS RESET + ROOT VARIABLES
+   ========================================================= */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-base:#0d0d14;
+  --bg-card:#1a1a2e;
+  --bg-card2:#16213e;
+  --accent-1:#6c63ff;
+  --accent-2:#a855f7;
+  --accent-3:#06b6d4;
+  --text-primary:#f0f0ff;
+  --text-secondary:#9898b8;
+  --border:#2a2a4a;
+  --success:#10b981;
+  --warning:#f59e0b;
+  --error:#ef4444;
+  --shadow:0 8px 32px rgba(0,0,0,.45);
+  --radius:14px;
+  --radius-sm:8px;
+  --transition:.22s cubic-bezier(.4,0,.2,1);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg-base);
+  color:var(--text-primary);
+  min-height:100vh;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* =========================================================
+   BACKGROUND AMBIENT GLOW
+   ========================================================= */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 20%,rgba(108,99,255,.12) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 50% at 80% 80%,rgba(168,85,247,.10) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* =========================================================
+   LAYOUT
+   ========================================================= */
+.container{max-width:1100px;margin:0 auto;padding:0 1rem;position:relative;z-index:1}
+
+header{
+  padding:1.5rem 0 1rem;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+  margin-bottom:2rem;
+}
+header h1{
+  font-size:1.6rem;font-weight:700;
+  background:linear-gradient(135deg,var(--accent-1),var(--accent-2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.header-badge{
+  display:flex;align-items:center;gap:.5rem;
+  font-size:.78rem;color:var(--text-secondary);
+}
+.status-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--warning);
+  animation:pulse 2s infinite;
+}
+.status-dot.ready{background:var(--success);animation:none}
+.status-dot.error{background:var(--error);animation:none}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+.tabs{
+  display:flex;gap:.5rem;margin-bottom:1.5rem;
+  border-bottom:1px solid var(--border);
+  overflow-x:auto;padding-bottom:0;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{
+  padding:.6rem 1.2rem;
+  background:none;border:none;color:var(--text-secondary);
+  font-family:inherit;font-size:.9rem;font-weight:500;
+  cursor:pointer;border-radius:var(--radius-sm) var(--radius-sm) 0 0;
+  transition:var(--transition);white-space:nowrap;
+  border-bottom:3px solid transparent;
+  margin-bottom:-1px;
+}
+.tab-btn:hover{color:var(--text-primary)}
+.tab-btn.active{
+  color:var(--accent-1);
+  border-bottom-color:var(--accent-1);
+}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadeIn .3s ease}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* =========================================================
+   GLASS CARD
+   ========================================================= */
+.card{
+  background:rgba(26,26,46,.75);
+  backdrop-filter:blur(12px);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.5rem;
+  box-shadow:var(--shadow);
+}
+
+/* =========================================================
+   FORM ELEMENTS
+   ========================================================= */
+label{display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.04em}
+select,textarea,input[type=text],input[type=file]{
+  width:100%;
+  background:#0f0f1e;
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  color:var(--text-primary);
+  font-family:inherit;
+  font-size:.95rem;
+  padding:.6rem .85rem;
+  transition:var(--transition);
+  outline:none;
+}
+select:focus,textarea:focus,input:focus{border-color:var(--accent-1);box-shadow:0 0 0 3px rgba(108,99,255,.18)}
+textarea{resize:vertical;min-height:130px;line-height:1.6}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239898b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .85rem center}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  padding:.65rem 1.4rem;
+  border:none;border-radius:var(--radius-sm);
+  font-family:inherit;font-size:.9rem;font-weight:600;
+  cursor:pointer;transition:var(--transition);
+  user-select:none;
+}
+.btn-primary{background:linear-gradient(135deg,var(--accent-1),var(--accent-2));color:#fff}
+.btn-primary:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.btn-secondary{background:var(--bg-card2);color:var(--text-primary);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent-1);color:var(--accent-1)}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--error);border:1px solid rgba(239,68,68,.3)}
+.btn-sm{padding:.4rem .85rem;font-size:.8rem}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none;transform:none}
+
+/* Spinner inside button */
+.spinner{
+  width:16px;height:16px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* =========================================================
+   LANGUAGE ROW
+   ========================================================= */
+.lang-row{
+  display:grid;grid-template-columns:1fr auto 1fr;
+  gap:.75rem;align-items:flex-end;
+  margin-bottom:1rem;
+}
+.swap-btn{
+  background:var(--bg-card2);border:1px solid var(--border);
+  border-radius:50%;width:40px;height:40px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:1.1rem;
+  transition:var(--transition);flex-shrink:0;
+  margin-bottom:.05rem;
+}
+.swap-btn:hover{border-color:var(--accent-1);transform:rotate(180deg)}
+
+/* =========================================================
+   TEXTAREA ROW
+   ========================================================= */
+.textarea-wrapper{position:relative;margin-bottom:.5rem}
+.char-count{
+  position:absolute;bottom:.5rem;right:.7rem;
+  font-size:.72rem;color:var(--text-secondary);
+  pointer-events:none;
+}
+.char-count.warn{color:var(--warning)}
+.char-count.over{color:var(--error)}
+
+/* =========================================================
+   OUTPUT AREA
+   ========================================================= */
+.output-box{
+  background:#0a0a16;
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:1rem;
+  min-height:130px;
+  font-size:.95rem;
+  line-height:1.7;
+  color:var(--text-primary);
+  position:relative;
+  word-break:break-word;
+  white-space:pre-wrap;
+}
+.output-box .placeholder{color:var(--text-secondary);font-style:italic}
+.output-actions{display:flex;justify-content:space-between;align-items:center;margin-top:.5rem}
+.latency-badge{font-size:.75rem;color:var(--text-secondary)}
+
+/* =========================================================
+   MODEL SELECTOR
+   ========================================================= */
+.model-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.model-chip{
+  padding:.35rem .9rem;
+  border-radius:999px;
+  border:1px solid var(--border);
+  font-size:.8rem;font-weight:500;
+  cursor:pointer;transition:var(--transition);
+  color:var(--text-secondary);background:transparent;
+}
+.model-chip.active{
+  background:linear-gradient(135deg,var(--accent-1),var(--accent-2));
+  color:#fff;border-color:transparent;
+}
+
+/* =========================================================
+   AUTO DETECT TOGGLE
+   ========================================================= */
+.toggle-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem}
+.toggle{position:relative;width:38px;height:21px}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{
+  position:absolute;inset:0;border-radius:999px;
+  background:var(--border);cursor:pointer;transition:var(--transition);
+}
+.toggle-slider::before{
+  content:'';position:absolute;
+  width:15px;height:15px;left:3px;bottom:3px;
+  background:#fff;border-radius:50%;transition:var(--transition);
+}
+.toggle input:checked+.toggle-slider{background:var(--accent-1)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(17px)}
+.toggle-label{font-size:.85rem;color:var(--text-secondary)}
+
+/* =========================================================
+   HISTORY
+   ========================================================= */
+.history-list{
+  list-style:none;display:flex;flex-direction:column;gap:.5rem;
+  max-height:280px;overflow-y:auto;
+}
+.history-item{
+  background:#0f0f1e;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:.7rem .9rem;
+  cursor:pointer;transition:var(--transition);font-size:.85rem;
+}
+.history-item:hover{border-color:var(--accent-1)}
+.history-item .hi-langs{font-size:.72rem;color:var(--text-secondary);margin-bottom:.25rem}
+.history-item .hi-src{color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.history-item .hi-tgt{color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* =========================================================
+   VOICE TAB
+   ========================================================= */
+.record-area{
+  display:flex;flex-direction:column;align-items:center;
+  gap:1.2rem;padding:2rem 1rem;
+}
+.record-btn{
+  width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent-1),var(--accent-2));
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;transition:var(--transition);
+  position:relative;box-shadow:0 0 0 0 rgba(108,99,255,.5);
+}
+.record-btn.recording{
+  animation:recordPulse 1.2s infinite;
+  background:linear-gradient(135deg,var(--error),#ff6b6b);
+}
+@keyframes recordPulse{
+  0%{box-shadow:0 0 0 0 rgba(239,68,68,.6)}
+  70%{box-shadow:0 0 0 20px rgba(239,68,68,0)}
+  100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}
+}
+.record-label{font-size:.9rem;color:var(--text-secondary);font-weight:500}
+.waveform{
+  width:100%;max-width:320px;height:40px;
+  display:flex;align-items:center;justify-content:center;gap:3px;
+}
+.waveform .bar{
+  width:4px;min-height:4px;border-radius:2px;
+  background:var(--accent-1);transition:.1s;
+  animation:none;
+}
+.recording-active .bar{animation:wavebar .9s ease-in-out infinite alternate}
+.recording-active .bar:nth-child(2){animation-delay:.1s}
+.recording-active .bar:nth-child(3){animation-delay:.2s}
+.recording-active .bar:nth-child(4){animation-delay:.3s}
+.recording-active .bar:nth-child(5){animation-delay:.4s}
+.recording-active .bar:nth-child(6){animation-delay:.5s}
+.recording-active .bar:nth-child(7){animation-delay:.35s}
+.recording-active .bar:nth-child(8){animation-delay:.15s}
+@keyframes wavebar{from{height:4px}to{height:28px}}
+.transcript-box{
+  background:#0a0a16;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:1rem;
+  min-height:80px;font-size:.9rem;line-height:1.6;
+  width:100%;color:var(--text-secondary);
+}
+.transcript-box.has-text{color:var(--text-primary)}
+
+/* =========================================================
+   STREAMING TAB
+   ========================================================= */
+.ws-status{
+  display:inline-flex;align-items:center;gap:.45rem;
+  font-size:.8rem;padding:.3rem .75rem;
+  border-radius:999px;border:1px solid;
+  font-weight:500;
+}
+.ws-status.connected{color:var(--success);border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.08)}
+.ws-status.disconnected{color:var(--error);border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08)}
+.ws-status.connecting{color:var(--warning);border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.08)}
+.stream-output{
+  background:#0a0a16;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:1rem;
+  min-height:140px;font-size:.95rem;line-height:1.7;
+  word-break:break-word;white-space:pre-wrap;
+}
+.stream-cursor{
+  display:inline-block;width:2px;height:1em;
+  background:var(--accent-1);margin-left:1px;
+  vertical-align:text-bottom;animation:blink 1s step-end infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* =========================================================
+   INFO PANEL
+   ========================================================= */
+.lang-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:.5rem;
+}
+.lang-card{
+  background:#0f0f1e;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:.5rem .75rem;
+  font-size:.82rem;display:flex;align-items:center;gap:.5rem;
+}
+.lang-card .flag{font-size:1.1rem}
+pre.code-block{
+  background:#050510;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:1rem;
+  overflow-x:auto;font-size:.8rem;line-height:1.6;
+  color:#a5f3fc;
+}
+.section-title{font-size:1rem;font-weight:600;margin-bottom:.85rem;color:var(--text-primary)}
+
+/* =========================================================
+   NOTIFICATION TOAST
+   ========================================================= */
+#toast-container{
+  position:fixed;bottom:1.5rem;right:1.5rem;
+  display:flex;flex-direction:column;gap:.5rem;
+  z-index:9999;
+}
+.toast{
+  padding:.75rem 1.2rem;border-radius:var(--radius-sm);
+  font-size:.85rem;font-weight:500;
+  box-shadow:var(--shadow);
+  animation:slideIn .3s ease,fadeOut .3s ease 2.7s forwards;
+  max-width:280px;
+}
+.toast.success{background:#0d2a1f;border:1px solid rgba(16,185,129,.4);color:var(--success)}
+.toast.error{background:#2a0d0d;border:1px solid rgba(239,68,68,.4);color:var(--error)}
+.toast.info{background:#1a1a35;border:1px solid rgba(108,99,255,.4);color:var(--accent-1)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0;transform:translateX(100%)}}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media(max-width:640px){
+  .lang-row{grid-template-columns:1fr;grid-template-rows:auto auto auto}
+  .swap-btn{margin:0 auto;transform:rotate(90deg)}
+  .swap-btn:hover{transform:rotate(90deg) rotate(180deg)}
+  header h1{font-size:1.3rem}
+  .card{padding:1rem}
+}
+
+/* =========================================================
+   SCROLLBAR STYLING
+   ========================================================= */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent-1)}
+
+/* =========================================================
+   PULSE ANIMATION
+   ========================================================= */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Two-column layout for translate tab */
+.translate-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;
+}
+@media(max-width:768px){.translate-grid{grid-template-columns:1fr}}
+
+.section-sep{height:1px;background:var(--border);margin:1.25rem 0}
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- HEADER -->
+  <header>
+    <h1>🌐 Multilingual Translator</h1>
+    <div class="header-badge">
+      <div class="status-dot" id="globalStatus"></div>
+      <span id="globalStatusText">Checking models…</span>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="text">📝 Text</button>
+    <button class="tab-btn" data-tab="voice">🎙️ Voice</button>
+    <button class="tab-btn" data-tab="stream">⚡ Streaming</button>
+    <button class="tab-btn" data-tab="info">ℹ️ Info &amp; API</button>
+  </div>
+
+  <!-- ===================== TAB: TEXT ===================== -->
+  <div class="tab-panel active" id="tab-text">
+    <!-- Language + options row -->
+    <div class="card" style="margin-bottom:1rem">
+      <div class="lang-row">
+        <div>
+          <label for="srcLang">Source</label>
+          <select id="srcLang"></select>
+        </div>
+        <button class="swap-btn" id="swapBtn" title="Swap languages">⇄</button>
+        <div>
+          <label for="tgtLang">Target</label>
+          <select id="tgtLang"></select>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <label class="toggle">
+          <input type="checkbox" id="autoDetect" checked/>
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label">Auto-detect source language</span>
+      </div>
+
+      <div>
+        <label>Model</label>
+        <div class="model-row">
+          <button class="model-chip active" data-model="nllb">🚀 NLLB-200</button>
+          <button class="model-chip" data-model="hybrid">🧠 Custom Hybrid</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input / Output -->
+    <div class="translate-grid">
+      <div class="card">
+        <label for="srcText">Input Text</label>
+        <div class="textarea-wrapper">
+          <textarea id="srcText" placeholder="Enter text to translate…" maxlength="2000" rows="7"></textarea>
+          <span class="char-count" id="charCount">0 / 2000</span>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="btn btn-primary" id="translateBtn">
+            <span id="translateBtnLabel">Translate</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="clearBtn">Clear</button>
+          <button class="btn btn-secondary btn-sm" id="detectBtn">🔍 Detect Lang</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <label>Translation</label>
+        <div class="output-box" id="outputBox">
+          <span class="placeholder">Translation will appear here…</span>
+        </div>
+        <div class="output-actions">
+          <span class="latency-badge" id="latencyBadge"></span>
+          <button class="btn btn-secondary btn-sm" id="copyBtn">📋 Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Translation History -->
+    <div class="card" style="margin-top:1rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+        <span class="section-title">📜 Translation History</span>
+        <button class="btn btn-danger btn-sm" id="clearHistoryBtn">Clear</button>
+      </div>
+      <ul class="history-list" id="historyList">
+        <li style="color:var(--text-secondary);font-size:.85rem">No history yet.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===================== TAB: VOICE ===================== -->
+  <div class="tab-panel" id="tab-voice">
+    <div class="card">
+      <div style="margin-bottom:1rem">
+        <label for="voiceTgtLang">Translate To</label>
+        <select id="voiceTgtLang" style="max-width:280px"></select>
+      </div>
+
+      <div class="record-area">
+        <div class="waveform" id="waveform">
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div>
+        </div>
+        <button class="record-btn" id="recordBtn" title="Hold to record">🎤</button>
+        <span class="record-label" id="recordLabel">Tap to record</span>
+      </div>
+
+      <div style="text-align:center;margin-bottom:1.5rem">
+        <label for="audioUpload" class="btn btn-secondary" style="cursor:pointer;display:inline-flex">
+          📂 Upload Audio File
+        </label>
+        <input type="file" id="audioUpload" accept="audio/*" style="display:none"/>
+      </div>
+
+      <div class="section-sep"></div>
+
+      <label>Transcript</label>
+      <div class="transcript-box" id="transcriptBox">Recording will appear here…</div>
+
+      <div class="section-sep"></div>
+
+      <label>Translation</label>
+      <div class="output-box" id="voiceOutputBox">
+        <span class="placeholder">Translation will appear here…</span>
+      </div>
+      <div class="output-actions" style="margin-top:.5rem">
+        <span class="latency-badge" id="voiceLatencyBadge"></span>
+        <button class="btn btn-secondary btn-sm" id="copyVoiceBtn">📋 Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TAB: STREAM ===================== -->
+  <div class="tab-panel" id="tab-stream">
+    <div class="card" style="margin-bottom:1rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem">
+        <span class="section-title" style="margin-bottom:0">Real-time Streaming Translation</span>
+        <span class="ws-status disconnected" id="wsStatus">⬤ Disconnected</span>
+      </div>
+
+      <div class="lang-row">
+        <div>
+          <label for="streamSrcLang">Source</label>
+          <select id="streamSrcLang"></select>
+        </div>
+        <div class="swap-btn" id="streamSwapBtn" title="Swap">⇄</div>
+        <div>
+          <label for="streamTgtLang">Target</label>
+          <select id="streamTgtLang"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="translate-grid">
+      <div class="card">
+        <label for="streamInput">Type to translate (auto-streams)</label>
+        <div class="textarea-wrapper">
+          <textarea id="streamInput" placeholder="Start typing…" rows="8"></textarea>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="wsConnectBtn">🔌 Connect WebSocket</button>
+      </div>
+
+      <div class="card">
+        <label>Live Translation</label>
+        <div class="stream-output" id="streamOutput">
+          <span style="color:var(--text-secondary);font-style:italic">Connect WebSocket and start typing…</span>
+          <span class="stream-cursor" style="display:none" id="streamCursor"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TAB: INFO ===================== -->
+  <div class="tab-panel" id="tab-info">
+    <div class="card" style="margin-bottom:1rem">
+      <p class="section-title">🌍 Supported Languages (24)</p>
+      <div class="lang-grid" id="langGrid"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem">
+      <p class="section-title">📡 API Reference</p>
+
+      <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:.75rem">Base URL: <code style="color:var(--accent-3)">http://localhost:7860</code></p>
+
+      <p style="font-weight:600;margin-bottom:.35rem;font-size:.9rem">Translate text</p>
+      <pre class="code-block">curl -X POST http://localhost:7860/translate \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Hello world","source_lang":"en","target_lang":"hi","model":"nllb"}'</pre>
+
+      <p style="font-weight:600;margin:.85rem 0 .35rem;font-size:.9rem">Detect language</p>
+      <pre class="code-block">curl -X POST http://localhost:7860/detect_language \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Bonjour le monde"}'</pre>
+
+      <p style="font-weight:600;margin:.85rem 0 .35rem;font-size:.9rem">Transcribe audio</p>
+      <pre class="code-block">curl -X POST http://localhost:7860/transcribe \
+  -F "file=@audio.wav"</pre>
+
+      <p style="font-weight:600;margin:.85rem 0 .35rem;font-size:.9rem">Audio → translate pipeline</p>
+      <pre class="code-block">curl -X POST http://localhost:7860/translate_audio \
+  -F "file=@audio.wav" \
+  -F "target_lang=hi" \
+  -F "model=nllb"</pre>
+
+      <p style="font-weight:600;margin:.85rem 0 .35rem;font-size:.9rem">WebSocket streaming</p>
+      <pre class="code-block">const ws = new WebSocket('ws://localhost:7860/ws/translate');
+ws.onopen = () => ws.send(JSON.stringify({
+  type: 'translate', text: 'Hello', source_lang: 'en', target_lang: 'hi'
+}));
+ws.onmessage = e => console.log(JSON.parse(e.data));</pre>
+    </div>
+
+    <div class="card">
+      <p class="section-title">📊 Model Performance</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem">
+        <div class="lang-card" style="flex-direction:column;align-items:flex-start;gap:.25rem">
+          <span style="font-weight:600;color:var(--accent-1)">NLLB-200 (CT2)</span>
+          <span style="color:var(--text-secondary)">~120ms · int8 quantized</span>
+          <span style="color:var(--text-secondary)">24 languages</span>
+        </div>
+        <div class="lang-card" style="flex-direction:column;align-items:flex-start;gap:.25rem">
+          <span style="font-weight:600;color:var(--accent-2)">Custom Hybrid</span>
+          <span style="color:var(--text-secondary)">~200ms · fine-tuned</span>
+          <span style="color:var(--text-secondary)">Indian languages optimized</span>
+        </div>
+        <div class="lang-card" style="flex-direction:column;align-items:flex-start;gap:.25rem">
+          <span style="font-weight:600;color:var(--accent-3)">Whisper ONNX</span>
+          <span style="color:var(--text-secondary)">~300ms · small model</span>
+          <span style="color:var(--text-secondary)">Indian accent tuned</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script>
+/* =========================================================
+   CONFIGURATION
+   ========================================================= */
+const API_BASE = '';  // same origin
+const WS_BASE = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`;
+const MAX_HISTORY = 10;
+const DEBOUNCE_MS = 500;
+
+/* =========================================================
+   LANGUAGE DATA (fetched from /languages, populated here as fallback)
+   ========================================================= */
+const FALLBACK_LANGS = [
+  {code:'en',name:'English',flag:'🇬🇧'},{code:'hi',name:'Hindi',flag:'🇮🇳'},
+  {code:'bn',name:'Bengali',flag:'🇧🇩'},{code:'ta',name:'Tamil',flag:'🇮🇳'},
+  {code:'te',name:'Telugu',flag:'🇮🇳'},{code:'mr',name:'Marathi',flag:'🇮🇳'},
+  {code:'gu',name:'Gujarati',flag:'🇮🇳'},{code:'kn',name:'Kannada',flag:'🇮🇳'},
+  {code:'ml',name:'Malayalam',flag:'🇮🇳'},{code:'pa',name:'Punjabi',flag:'🇮🇳'},
+  {code:'ur',name:'Urdu',flag:'🇵🇰'},{code:'or',name:'Odia',flag:'🇮🇳'},
+  {code:'as',name:'Assamese',flag:'🇮🇳'},{code:'ne',name:'Nepali',flag:'🇳🇵'},
+  {code:'si',name:'Sinhala',flag:'🇱🇰'},{code:'fr',name:'French',flag:'🇫🇷'},
+  {code:'de',name:'German',flag:'🇩🇪'},{code:'es',name:'Spanish',flag:'🇪🇸'},
+  {code:'ar',name:'Arabic',flag:'🇸🇦'},{code:'zh',name:'Chinese',flag:'🇨🇳'},
+  {code:'ja',name:'Japanese',flag:'🇯🇵'},{code:'ko',name:'Korean',flag:'🇰🇷'},
+  {code:'ru',name:'Russian',flag:'🇷🇺'},{code:'pt',name:'Portuguese',flag:'🇧🇷'},
+];
+
+let supportedLanguages = FALLBACK_LANGS;
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let selectedModel = 'nllb';
+let isRecording = false;
+let mediaRecorder = null;
+let audioChunks = [];
+let wsTranslate = null;
+let wsReconnectTimer = null;
+let streamDebounceTimer = null;
+let isTranslating = false;
+
+/* =========================================================
+   UTILITY
+   ========================================================= */
+function $(sel, ctx) { return (ctx || document).querySelector(sel); }
+function $$(sel, ctx) { return [...(ctx || document).querySelectorAll(sel)]; }
+
+function toast(msg, type = 'info', duration = 3000) {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), duration);
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(
+    () => toast('Copied to clipboard!', 'success'),
+    () => toast('Copy failed', 'error')
+  );
+}
+
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
+
+/* =========================================================
+   POPULATE SELECTS
+   ========================================================= */
+function populateSelect(elId, langs, addAuto = false) {
+  const el = document.getElementById(elId);
+  el.innerHTML = '';
+  if (addAuto) {
+    const opt = document.createElement('option');
+    opt.value = 'auto'; opt.textContent = '🔍 Auto-detect';
+    el.appendChild(opt);
+  }
+  langs.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l.code;
+    opt.textContent = `${l.flag} ${l.name}`;
+    el.appendChild(opt);
+  });
+}
+
+function populateLangGrid() {
+  const grid = document.getElementById('langGrid');
+  grid.innerHTML = '';
+  supportedLanguages.forEach(l => {
+    const card = document.createElement('div');
+    card.className = 'lang-card';
+    card.innerHTML = `<span class="flag">${l.flag}</span><span>${l.name}</span>`;
+    grid.appendChild(card);
+  });
+}
+
+function initSelects() {
+  populateSelect('srcLang', supportedLanguages, true);
+  populateSelect('tgtLang', supportedLanguages);
+  populateSelect('voiceTgtLang', supportedLanguages);
+  populateSelect('streamSrcLang', supportedLanguages, true);
+  populateSelect('streamTgtLang', supportedLanguages);
+
+  // Defaults
+  document.getElementById('srcLang').value = 'auto';
+  document.getElementById('tgtLang').value = 'hi';
+  document.getElementById('voiceTgtLang').value = 'en';
+  document.getElementById('streamSrcLang').value = 'auto';
+  document.getElementById('streamTgtLang').value = 'hi';
+
+  populateLangGrid();
+}
+
+/* =========================================================
+   HEALTH CHECK
+   ========================================================= */
+async function checkHealth() {
+  try {
+    const r = await fetch(`${API_BASE}/health`);
+    const data = await r.json();
+    const dot = document.getElementById('globalStatus');
+    const txt = document.getElementById('globalStatusText');
+    const anyLoaded = Object.values(data.models).some(v => v === 'loaded');
+    if (anyLoaded) {
+      dot.className = 'status-dot ready';
+      txt.textContent = 'Models ready';
+    } else {
+      dot.className = 'status-dot';
+      txt.textContent = 'Loading models…';
+      setTimeout(checkHealth, 4000);
+    }
+  } catch {
+    document.getElementById('globalStatusText').textContent = 'API offline';
+    document.getElementById('globalStatus').className = 'status-dot error';
+    setTimeout(checkHealth, 6000);
+  }
+}
+
+async function fetchLanguages() {
+  try {
+    const r = await fetch(`${API_BASE}/languages`);
+    const data = await r.json();
+    if (data.languages && data.languages.length > 0) {
+      supportedLanguages = data.languages;
+      initSelects();
+    }
+  } catch { /* use fallback */ }
+}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+$$('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.tab-btn').forEach(b => b.classList.remove('active'));
+    $$('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+  });
+});
+
+/* =========================================================
+   MODEL CHIPS
+   ========================================================= */
+$$('.model-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    $$('.model-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    selectedModel = chip.dataset.model;
+  });
+});
+
+/* =========================================================
+   CHARACTER COUNTER
+   ========================================================= */
+document.getElementById('srcText').addEventListener('input', () => {
+  const len = document.getElementById('srcText').value.length;
+  const el = document.getElementById('charCount');
+  el.textContent = `${len} / 2000`;
+  el.className = `char-count${len > 1800 ? (len > 2000 ? ' over' : ' warn') : ''}`;
+});
+
+/* =========================================================
+   SWAP BUTTON
+   ========================================================= */
+document.getElementById('swapBtn').addEventListener('click', () => {
+  const src = document.getElementById('srcLang');
+  const tgt = document.getElementById('tgtLang');
+  const srcVal = src.value === 'auto' ? 'en' : src.value;
+  const tgtVal = tgt.value;
+  src.value = tgtVal;
+  tgt.value = srcVal;
+
+  // Swap text too
+  const srcText = document.getElementById('srcText');
+  const outBox = document.getElementById('outputBox');
+  if (!outBox.querySelector('.placeholder')) {
+    const tmp = srcText.value;
+    srcText.value = outBox.textContent;
+    outBox.textContent = tmp;
+  }
+});
+
+document.getElementById('streamSwapBtn').addEventListener('click', () => {
+  const src = document.getElementById('streamSrcLang');
+  const tgt = document.getElementById('streamTgtLang');
+  const sv = src.value === 'auto' ? 'en' : src.value;
+  const tv = tgt.value;
+  src.value = tv; tgt.value = sv;
+});
+
+/* =========================================================
+   AUTO-DETECT TOGGLE
+   ========================================================= */
+document.getElementById('autoDetect').addEventListener('change', e => {
+  const src = document.getElementById('srcLang');
+  if (e.target.checked) {
+    src.value = 'auto';
+  } else if (src.value === 'auto') {
+    src.value = 'en';
+  }
+});
+
+/* =========================================================
+   TRANSLATE (REST)
+   ========================================================= */
+async function doTranslate() {
+  if (isTranslating) return;
+  const text = document.getElementById('srcText').value.trim();
+  if (!text) { toast('Please enter text to translate', 'error'); return; }
+
+  const src = document.getElementById('autoDetect').checked
+    ? 'auto'
+    : document.getElementById('srcLang').value;
+  const tgt = document.getElementById('tgtLang').value;
+
+  isTranslating = true;
+  const btn = document.getElementById('translateBtn');
+  const lbl = document.getElementById('translateBtnLabel');
+  lbl.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+
+  const outBox = document.getElementById('outputBox');
+  outBox.innerHTML = '<span style="color:var(--text-secondary);font-style:italic">Translating…</span>';
+
+  try {
+    const r = await fetch(`${API_BASE}/translate`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text, source_lang: src, target_lang: tgt, model: selectedModel}),
+    });
+    if (!r.ok) {
+      const err = await r.json();
+      throw new Error(err.detail || `HTTP ${r.status}`);
+    }
+    const data = await r.json();
+    outBox.textContent = data.translated_text;
+    document.getElementById('latencyBadge').textContent =
+      `${data.model_used} · ${data.latency_ms.toFixed(0)}ms`;
+
+    // Update source lang indicator
+    if (src === 'auto') {
+      const detected = data.source_lang;
+      const lang = supportedLanguages.find(l => l.code === detected);
+      if (lang) document.getElementById('srcLang').value = detected;
+    }
+
+    // Save to history
+    addToHistory({
+      srcLang: data.source_lang, tgtLang: data.target_lang,
+      srcText: text, tgtText: data.translated_text,
+    });
+  } catch (err) {
+    outBox.innerHTML = `<span style="color:var(--error)">Error: ${err.message}</span>`;
+    toast(`Translation failed: ${err.message}`, 'error');
+  } finally {
+    isTranslating = false;
+    lbl.textContent = 'Translate';
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('translateBtn').addEventListener('click', doTranslate);
+document.getElementById('srcText').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) doTranslate();
+});
+
+/* =========================================================
+   DETECT LANGUAGE
+   ========================================================= */
+document.getElementById('detectBtn').addEventListener('click', async () => {
+  const text = document.getElementById('srcText').value.trim();
+  if (!text) { toast('Enter text first', 'error'); return; }
+  try {
+    const r = await fetch(`${API_BASE}/detect_language`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text}),
+    });
+    const data = await r.json();
+    document.getElementById('srcLang').value = data.detected_lang;
+    document.getElementById('autoDetect').checked = false;
+    toast(`Detected: ${data.language_name} (${(data.confidence * 100).toFixed(0)}%)`, 'success');
+  } catch (err) {
+    toast(`Detection failed: ${err.message}`, 'error');
+  }
+});
+
+/* =========================================================
+   CLEAR
+   ========================================================= */
+document.getElementById('clearBtn').addEventListener('click', () => {
+  document.getElementById('srcText').value = '';
+  document.getElementById('outputBox').innerHTML = '<span class="placeholder">Translation will appear here…</span>';
+  document.getElementById('charCount').textContent = '0 / 2000';
+  document.getElementById('latencyBadge').textContent = '';
+});
+
+/* =========================================================
+   COPY
+   ========================================================= */
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const box = document.getElementById('outputBox');
+  if (!box.querySelector('.placeholder')) copyText(box.textContent);
+});
+document.getElementById('copyVoiceBtn').addEventListener('click', () => {
+  const box = document.getElementById('voiceOutputBox');
+  if (!box.querySelector('.placeholder')) copyText(box.textContent);
+});
+
+/* =========================================================
+   HISTORY
+   ========================================================= */
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem('translationHistory') || '[]'); }
+  catch { return []; }
+}
+function saveHistory(h) {
+  localStorage.setItem('translationHistory', JSON.stringify(h.slice(0, MAX_HISTORY)));
+}
+
+function addToHistory(item) {
+  const h = loadHistory();
+  h.unshift({...item, ts: Date.now()});
+  saveHistory(h);
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  const h = loadHistory();
+  if (!h.length) {
+    list.innerHTML = '<li style="color:var(--text-secondary);font-size:.85rem">No history yet.</li>';
+    return;
+  }
+  list.innerHTML = '';
+  h.forEach(item => {
+    const srcLang = supportedLanguages.find(l => l.code === item.srcLang);
+    const tgtLang = supportedLanguages.find(l => l.code === item.tgtLang);
+    const li = document.createElement('li');
+    li.className = 'history-item';
+    li.innerHTML = `
+      <div class="hi-langs">${srcLang ? srcLang.flag + ' ' + srcLang.name : item.srcLang} → ${tgtLang ? tgtLang.flag + ' ' + tgtLang.name : item.tgtLang}</div>
+      <div class="hi-src">${item.srcText.slice(0, 80)}${item.srcText.length > 80 ? '…' : ''}</div>
+      <div class="hi-tgt">${item.tgtText.slice(0, 80)}${item.tgtText.length > 80 ? '…' : ''}</div>`;
+    li.addEventListener('click', () => {
+      document.getElementById('srcText').value = item.srcText;
+      document.getElementById('outputBox').textContent = item.tgtText;
+      document.getElementById('srcLang').value = item.srcLang;
+      document.getElementById('tgtLang').value = item.tgtLang;
+      $$('.tab-btn')[0].click();
+    });
+    list.appendChild(li);
+  });
+}
+
+document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+  localStorage.removeItem('translationHistory');
+  renderHistory();
+  toast('History cleared', 'info');
+});
+
+/* =========================================================
+   VOICE TAB – RECORDING
+   ========================================================= */
+const recordBtn = document.getElementById('recordBtn');
+const recordLabel = document.getElementById('recordLabel');
+const waveform = document.getElementById('waveform');
+const transcriptBox = document.getElementById('transcriptBox');
+const voiceOutputBox = document.getElementById('voiceOutputBox');
+
+recordBtn.addEventListener('click', async () => {
+  if (!isRecording) {
+    await startRecording();
+  } else {
+    stopRecording();
+  }
+});
+
+async function startRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+    mediaRecorder = new MediaRecorder(stream, {mimeType: 'audio/webm;codecs=opus'});
+    audioChunks = [];
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(audioChunks, {type: 'audio/webm'});
+      await processAudio(blob);
+    };
+    mediaRecorder.start(100);
+    isRecording = true;
+    recordBtn.classList.add('recording');
+    recordBtn.textContent = '⏹';
+    recordLabel.textContent = 'Recording… tap to stop';
+    waveform.classList.add('recording-active');
+    transcriptBox.textContent = 'Listening…';
+    transcriptBox.classList.remove('has-text');
+  } catch (err) {
+    toast(`Microphone error: ${err.message}`, 'error');
+  }
+}
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+  }
+  isRecording = false;
+  recordBtn.classList.remove('recording');
+  recordBtn.textContent = '🎤';
+  recordLabel.textContent = 'Processing…';
+  waveform.classList.remove('recording-active');
+}
+
+document.getElementById('audioUpload').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  await processAudio(file);
+  e.target.value = '';
+});
+
+async function processAudio(blob) {
+  transcriptBox.textContent = 'Transcribing…';
+  transcriptBox.classList.remove('has-text');
+  voiceOutputBox.innerHTML = '<span class="placeholder">Translation will appear here…</span>';
+  recordLabel.textContent = 'Tap to record';
+
+  const formData = new FormData();
+  formData.append('file', blob, 'audio.webm');
+
+  try {
+    const r = await fetch(`${API_BASE}/transcribe`, {method: 'POST', body: formData});
+    if (!r.ok) { const e = await r.json(); throw new Error(e.detail || `HTTP ${r.status}`); }
+    const tData = await r.json();
+    transcriptBox.textContent = tData.transcript;
+    transcriptBox.classList.add('has-text');
+    toast(`Detected language: ${tData.detected_language}`, 'info');
+
+    // Auto-translate
+    const tgtLang = document.getElementById('voiceTgtLang').value;
+    const tr = await fetch(`${API_BASE}/translate`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: tData.transcript, source_lang: tData.detected_language, target_lang: tgtLang, model: selectedModel}),
+    });
+    if (!tr.ok) { const e = await tr.json(); throw new Error(e.detail); }
+    const trData = await tr.json();
+    voiceOutputBox.textContent = trData.translated_text;
+    document.getElementById('voiceLatencyBadge').textContent =
+      `${trData.model_used} · ${trData.latency_ms.toFixed(0)}ms`;
+  } catch (err) {
+    transcriptBox.textContent = `Error: ${err.message}`;
+    toast(`Audio processing failed: ${err.message}`, 'error');
+  }
+}
+
+/* =========================================================
+   WEBSOCKET STREAMING TAB
+   ========================================================= */
+const wsStatusEl = document.getElementById('wsStatus');
+const streamOutput = document.getElementById('streamOutput');
+const streamCursor = document.getElementById('streamCursor');
+const wsConnectBtn = document.getElementById('wsConnectBtn');
+
+function setWsStatus(state) {
+  wsStatusEl.className = `ws-status ${state}`;
+  const labels = {connected: '⬤ Connected', disconnected: '⬤ Disconnected', connecting: '⬤ Connecting…'};
+  wsStatusEl.textContent = labels[state] || state;
+}
+
+function connectWs() {
+  if (wsTranslate && wsTranslate.readyState === WebSocket.OPEN) return;
+  setWsStatus('connecting');
+  wsTranslate = new WebSocket(`${WS_BASE}/ws/translate`);
+
+  wsTranslate.onopen = () => {
+    setWsStatus('connected');
+    wsConnectBtn.textContent = '🔌 Disconnect';
+    toast('WebSocket connected!', 'success');
+  };
+
+  wsTranslate.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'start') {
+      streamOutput.textContent = '';
+      streamCursor.style.display = 'inline-block';
+      streamOutput.appendChild(streamCursor);
+    } else if (msg.type === 'chunk') {
+      const span = document.createTextNode(msg.text);
+      streamOutput.insertBefore(span, streamCursor);
+    } else if (msg.type === 'done') {
+      streamCursor.style.display = 'none';
+    } else if (msg.type === 'error') {
+      streamOutput.innerHTML = `<span style="color:var(--error)">${msg.message}</span>`;
+    }
+  };
+
+  wsTranslate.onclose = () => {
+    setWsStatus('disconnected');
+    wsConnectBtn.textContent = '🔌 Connect WebSocket';
+    if (wsReconnectTimer) clearTimeout(wsReconnectTimer);
+    wsReconnectTimer = setTimeout(connectWs, 5000);
+  };
+
+  wsTranslate.onerror = () => {
+    setWsStatus('disconnected');
+  };
+}
+
+function disconnectWs() {
+  if (wsReconnectTimer) clearTimeout(wsReconnectTimer);
+  if (wsTranslate) { wsTranslate.close(); wsTranslate = null; }
+  setWsStatus('disconnected');
+  wsConnectBtn.textContent = '🔌 Connect WebSocket';
+}
+
+wsConnectBtn.addEventListener('click', () => {
+  if (wsTranslate && wsTranslate.readyState === WebSocket.OPEN) {
+    disconnectWs();
+  } else {
+    connectWs();
+  }
+});
+
+const handleStreamInput = debounce(() => {
+  const text = document.getElementById('streamInput').value.trim();
+  if (!text) return;
+  if (!wsTranslate || wsTranslate.readyState !== WebSocket.OPEN) {
+    toast('WebSocket not connected', 'error'); return;
+  }
+  const src = document.getElementById('streamSrcLang').value;
+  const tgt = document.getElementById('streamTgtLang').value;
+  wsTranslate.send(JSON.stringify({type: 'translate', text, source_lang: src, target_lang: tgt, model: selectedModel}));
+}, DEBOUNCE_MS);
+
+document.getElementById('streamInput').addEventListener('input', handleStreamInput);
+
+/* =========================================================
+   RESTORE SETTINGS
+   ========================================================= */
+function restoreSettings() {
+  const tgt = localStorage.getItem('lastTargetLang');
+  if (tgt) {
+    document.getElementById('tgtLang').value = tgt;
+    document.getElementById('voiceTgtLang').value = tgt;
+    document.getElementById('streamTgtLang').value = tgt;
+  }
+  const model = localStorage.getItem('lastModel');
+  if (model) {
+    selectedModel = model;
+    $$('.model-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.model === model);
+    });
+  }
+}
+
+['tgtLang','voiceTgtLang','streamTgtLang'].forEach(id => {
+  document.getElementById(id).addEventListener('change', e => {
+    localStorage.setItem('lastTargetLang', e.target.value);
+  });
+});
+
+/* =========================================================
+   INIT
+   ========================================================= */
+async function init() {
+  await fetchLanguages();
+  restoreSettings();
+  renderHistory();
+  checkHealth();
+}
+
+init();
+</script>
+</body>
+</html>
