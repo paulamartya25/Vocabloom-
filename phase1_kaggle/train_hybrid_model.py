@@ -542,16 +542,24 @@ def save_checkpoint(
     state_dict = (model.module if hasattr(model, "module") else model).state_dict()
     torch.save(
         {
-            "step":          step,
-            "val_loss":      val_loss,
-            "model":         state_dict,
-            "optimizer":     optimizer.state_dict(),
-            "scheduler":     scheduler.state_dict(),
-            "scaler":        scaler.state_dict(),
+            "step":               step,
+            "best_val_loss":      val_loss,
+            "model_state_dict":   state_dict,
+            "optimizer_state_dict": optimizer.state_dict(),
+            "scheduler_state_dict": scheduler.state_dict(),
+            "scaler_state_dict":  scaler.state_dict(),
         },
         ckpt_path,
     )
     log.info(f"Checkpoint saved → {ckpt_path}")
+    # Keep only the 2 most recent checkpoints to save disk space
+    old_ckpts = sorted(ckpt_dir.glob("checkpoint_step_*.pt"))[:-2]
+    for old in old_ckpts:
+        try:
+            old.unlink()
+            log.info(f"Deleted old checkpoint: {old.name}")
+        except Exception:
+            pass
     return ckpt_path
 
 
@@ -672,12 +680,30 @@ def train() -> None:
     optimizer, scheduler = build_optimizer_and_scheduler(model, CFG.MAX_STEPS)
     scaler = GradScaler(enabled=(device.type == "cuda"))
 
-    # ── Training state ────────────────────────────────────────────────────────
-    global_step       = 0
-    best_val_loss     = float("inf")
-    no_improve_count  = 0
-    t_start           = time.time()
+    # ── Resume from checkpoint if RESUME_FROM is set ─────────────────────────
+    global_step      = 0
+    best_val_loss    = float("inf")
+    no_improve_count = 0
 
+    resume_path = os.environ.get("RESUME_FROM", "")
+    if resume_path and Path(resume_path).exists():
+        log.info(f"Resuming from checkpoint: {resume_path}")
+        ckpt = torch.load(resume_path, map_location=device)
+        # Load model weights
+        base_model = model.module if hasattr(model, "module") else model
+        base_model.load_state_dict(ckpt["model_state_dict"])
+        # Load optimizer + scheduler + scaler
+        optimizer.load_state_dict(ckpt["optimizer_state_dict"])
+        scheduler.load_state_dict(ckpt["scheduler_state_dict"])
+        if "scaler_state_dict" in ckpt and ckpt["scaler_state_dict"] is not None:
+            scaler.load_state_dict(ckpt["scaler_state_dict"])
+        global_step   = ckpt.get("step", 0)
+        best_val_loss = ckpt.get("best_val_loss", float("inf"))
+        log.info(f"Resumed at step {global_step:,}  best_val_loss={best_val_loss:.4f}")
+    else:
+        log.info("Starting training from scratch …")
+
+    t_start = time.time()
     log.info("Starting training …")
 
     while global_step < CFG.MAX_STEPS:
